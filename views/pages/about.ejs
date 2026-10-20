@@ -1,0 +1,24 @@
+<section class="wrap pt-6">
+  <%- include('../partials/breadcrumbs') %>
+  <div class="mt-4 grid items-center gap-10 lg:grid-cols-2">
+    <div>
+      <p class="eyebrow">O nas</p>
+      <h1 class="mt-2 font-display text-4xl font-extrabold tracking-tight sm:text-5xl">Portal nieruchomości stworzony dla Pomorza</h1>
+      <p class="mt-5 text-lg text-muted">ModulioEstate to regionalny serwis ogłoszeń dla województwa pomorskiego i zachodniopomorskiego. Zamiast przewijać oferty z całej Polski, przeglądasz tylko to, co dotyczy Twojego regionu – od Ustki, Słupska i Bytowa, przez Trójmiasto, po Koszalin, Kołobrzeg i Szczecin.</p>
+      <div class="mt-8 grid grid-cols-3 gap-3">
+        <div class="kpi"><p class="kpi-value">2</p><p class="text-sm text-muted">województwa</p></div>
+        <div class="kpi"><p class="kpi-value"><%= LOC.CITIES.length %></p><p class="text-sm text-muted">miejscowości</p></div>
+        <div class="kpi"><p class="kpi-value">1</p><p class="text-sm text-muted">region</p></div>
+      </div>
+    </div>
+    <div class="mosaic-band aspect-square overflow-hidden rounded-2xl shadow-lift"><%- art.mosaic(6, 6, 2026) %></div>
+  </div>
+</section>
+<section class="wrap py-16">
+  <div class="grid gap-4 md:grid-cols-3">
+    <% [['map-pin','Lokalnie','Ceny za m², dzielnice i biura z Twojej okolicy – a nie średnie dla całego kraju.'],['shield','Rzetelnie','Weryfikujemy partnerów, a każdą ofertę można zgłosić do moderacji jednym kliknięciem.'],['users','Dla ludzi i biur','Prosty panel dla osób prywatnych i rozbudowany panel z CRM dla biur nieruchomości.']].forEach(function(v){ %>
+    <div class="card card-pad"><span class="grid h-12 w-12 place-items-center rounded-2xl bg-teal-500 text-white"><%- icon(v[0], 'ico-lg') %></span><h2 class="mt-5 font-display text-xl font-bold"><%= v[1] %></h2><p class="mt-2 text-muted"><%= v[2] %></p></div>
+    <% }) %>
+  </div>
+  <div class="mt-10 flex flex-wrap gap-3"><a href="/zostan-partnerem" class="btn btn-accent">Zostań partnerem</a><a href="/kontakt" class="btn btn-outline">Kontakt</a></div>
+</section>

@@ -1,0 +1,37 @@
+<section class="wrap py-8">
+  <%- include('../partials/breadcrumbs') %>
+  <div class="mt-4 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
+    <div><h1 class="font-display text-4xl font-extrabold tracking-tight">Biura nieruchomości<%= city ? ' – ' + city.name : '' %></h1><p class="mt-2 text-muted">Partnerzy ModulioEstate z województwa pomorskiego i zachodniopomorskiego.</p></div>
+    <form method="get" action="/biura" class="flex gap-2" data-autosubmit>
+      <label for="b-city" class="sr-only">Miasto</label>
+      <select id="b-city" name="miasto" class="select !w-auto"><option value="">Wszystkie miasta</option><% LOC.MAJOR.forEach(function(c){ %><option value="<%= c.slug %>" <%= city && city.slug === c.slug ? 'selected' : '' %>><%= c.name %></option><% }) %></select>
+    </form>
+  </div>
+</section>
+<section class="wrap pb-12">
+  <% if (agencies.length) { %>
+  <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    <% agencies.forEach(function(a){ %>
+    <a href="/biuro/<%= a.slug %>" class="group overflow-hidden rounded-xl border border-line bg-white transition hover:-translate-y-1 hover:shadow-lift">
+      <div class="relative h-28 overflow-hidden" style="background: <%= a.brandColor || '#18325a' %>">
+        <% if (a.cover) { %><img src="<%= a.cover %>" alt="" class="h-full w-full object-cover opacity-80"><% } else { %><div class="mosaic-band h-full w-full opacity-40"><%- art.mosaic(10, 3, a.name.length) %></div><% } %>
+        <% if (a.plan && a.plan.microsite) { %><span class="absolute right-3 top-3 badge bg-white/95 text-navy-800"><%- icon('award', 'ico-sm text-orange-500') %>Partner Premium</span><% } %>
+      </div>
+      <div class="relative px-5 pb-5">
+        <span class="-mt-8 grid h-16 w-16 place-items-center overflow-hidden rounded-2xl border-4 border-white bg-white font-display text-lg font-bold text-navy-800 shadow-soft"><% if (a.logo) { %><img src="<%= a.logo %>" alt="" class="h-full w-full object-contain p-1"><% } else { %><%= a.name.slice(0,2).toUpperCase() %><% } %></span>
+        <h2 class="mt-3 font-display text-lg font-bold group-hover:text-teal-600"><%= a.name %></h2>
+        <p class="text-sm text-muted"><%= cityName(a.city) %><%= a.verified ? ' · zweryfikowane' : '' %></p>
+        <p class="mt-3 line-clamp-2 text-sm text-navy-600"><%= a.shortDescription || 'Biuro nieruchomości – oferty sprzedaży i wynajmu.' %></p>
+        <p class="mt-4 text-sm font-semibold text-teal-600"><span class="num"><%= byAgency[String(a._id)] || 0 %></span> aktywnych ofert</p>
+      </div>
+    </a>
+    <% }) %>
+  </div>
+  <% } else { %>
+  <div class="card p-10 text-center"><p class="font-display text-xl font-bold">Brak biur w tej lokalizacji</p><p class="mt-2 text-muted">Prowadzisz biuro nieruchomości<%= city ? ' w ' + city.loc : '' %>? Dołącz do partnerów.</p><a href="/zostan-partnerem" class="btn btn-accent mt-5">Zostań partnerem</a></div>
+  <% } %>
+  <div class="mt-12 flex flex-col items-center justify-between gap-4 rounded-xl bg-navy-800 p-6 text-white sm:flex-row sm:p-8">
+    <div><p class="font-display text-2xl font-bold text-white">Twoje biuro w ModulioEstate</p><p class="mt-1 text-white/70">Panel biura, CRM zapytań i strona firmowa w serwisie. Warunki ustalamy indywidualnie.</p></div>
+    <a href="/zostan-partnerem" class="btn btn-accent shrink-0">Skontaktuj się z nami</a>
+  </div>
+</section>

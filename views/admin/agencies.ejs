@@ -1,0 +1,13 @@
+<div class="flex flex-wrap items-end justify-between gap-4"><h1 class="font-display text-3xl font-extrabold">Biura i plany współpracy</h1><a href="/admin/biura/nowe" class="btn btn-accent"><%- icon('plus', 'ico-sm') %>Dodaj biuro</a></div>
+<div class="card mt-6 overflow-hidden"><div class="table-wrap"><table class="table">
+  <thead><tr><th>Biuro</th><th>Status</th><th>Plan</th><th class="!text-right">Oferty</th><th>Zespół</th><th>Ważny do</th><th></th></tr></thead>
+  <tbody><% agencies.forEach(function(a){ var owner = (a.members || []).find(function(m){ return m.role === 'owner'; }); %>
+    <tr><td><a href="/admin/biura/<%= a._id %>" class="font-semibold hover:text-teal-600"><%= a.name %></a><p class="text-xs text-muted"><%= cityName(a.city) %> · <%= owner && owner.user ? owner.user.email : 'brak właściciela' %></p></td>
+      <td><span class="badge <%= a.status === 'active' ? 'tone-good' : 'tone-bad' %>"><%= a.status === 'active' ? 'aktywne' : 'zawieszone' %></span></td>
+      <td class="text-sm"><%= a.plan.name %><br><span class="text-xs text-muted"><%= a.plan.microsite ? 'strona biura · ' : '' %><%= a.plan.xmlImport ? 'XML · ' : '' %><%= a.plan.featuredSlots %> wyróżn.</span></td>
+      <td class="text-right num"><%= counts[String(a._id)] || 0 %> / <%= a.plan.maxListings %></td>
+      <td class="num"><%= (a.members || []).length %> / <%= a.plan.maxAgents %></td>
+      <td class="text-sm"><%= a.plan.validUntil ? fmt.dateShort(a.plan.validUntil) : 'bezterminowo' %></td>
+      <td class="text-right"><a href="/biuro/<%= a.slug %>" target="_blank" class="btn btn-ghost btn-sm"><%- icon('external', 'ico-sm') %></a></td></tr>
+  <% }) %><% if (!agencies.length) { %><tr><td colspan="7" class="py-10 text-center text-muted">Brak biur. Utwórz biuro ze zgłoszenia partnera lub ręcznie.</td></tr><% } %></tbody>
+</table></div></div>
