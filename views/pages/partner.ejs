@@ -1,0 +1,59 @@
+<%
+  var features = [
+    ['list','Ogłoszenia bez ograniczeń formatu','Do 40 zdjęć, wideo, spacer 3D, numer referencyjny z Twojego CRM, przypisanie agenta, szkice i duplikowanie.'],
+    ['inbox','CRM zapytań','Tablica leadów: nowe, w kontakcie, prezentacja, negocjacje, transakcja. Notatki, przypisanie agenta, termin prezentacji, odpowiedź e-mailem.'],
+    ['users','Zespół i role','Konta dla agentów, managerów i właściciela. Zaproszenia e-mailem, agent widzi swoje oferty i leady.'],
+    ['layout','Strona biura w serwisie','Własna podstrona z logo, okładką, kolorem marki, opisem, zespołem, ofertami i formularzem kontaktu – zoptymalizowana pod SEO.'],
+    ['star','Wyróżnienia i podbicia','Pakiet slotów wyróżnień i podbić ofert na górę wyników – ustalany indywidualnie.'],
+    ['chart','Statystyki','Wyświetlenia, odsłony telefonu i zapytania dzień po dniu. Ranking ofert i miast, źródła leadów.'],
+    ['upload','Import ofert XML','Automatyczna synchronizacja z popularnymi systemami CRM dla biur (wdrażamy wraz z partnerem).'],
+    ['megaphone','Reklama biura','Banery na stronach miast i w wynikach wyszukiwania w Twojej okolicy.'],
+    ['shield','Znaczek „Zweryfikowane”','Weryfikujemy dane firmy – kupujący widzą, że rozmawiają z rzetelnym biurem.']
+  ];
+%>
+<section class="wrap pt-6">
+  <%- include('../partials/breadcrumbs') %>
+  <div class="relative mt-4 overflow-hidden rounded-[2rem] bg-navy-900 text-white">
+    <div class="mosaic-band absolute inset-y-0 right-0 w-1/2 overflow-hidden opacity-40 [mask-image:linear-gradient(to_left,black,transparent)]"><%- art.mosaic(8, 8, 33) %></div>
+    <div class="relative max-w-3xl p-6 sm:p-12">
+      <p class="text-xs font-bold uppercase tracking-[.16em] text-sun-300">Dla biur nieruchomości i deweloperów</p>
+      <h1 class="mt-3 font-display text-4xl font-extrabold text-white sm:text-5xl">Zostań partnerem ModulioEstate</h1>
+      <p class="mt-4 text-lg text-white/80">Regionalny portal dla województwa pomorskiego i zachodniopomorskiego. Twoje oferty trafiają do osób, które szukają właśnie tu – w Trójmieście, Słupsku, Koszalinie, Szczecinie i okolicach.</p>
+      <p class="mt-4 rounded-2xl bg-white/10 p-4 text-white/90">Nie mamy gotowych cenników. Każdą współpracę ustalamy indywidualnie – limit ogłoszeń, liczba kont, strona biura i wyróżnienia zależą od potrzeb Twojego biura.</p>
+      <a href="#formularz" class="btn btn-accent btn-lg mt-7">Skontaktuj się z nami <%- icon('arrow-right', 'ico-sm') %></a>
+    </div>
+  </div>
+</section>
+
+<section class="wrap py-16">
+  <p class="eyebrow">Panel biura</p>
+  <h2 class="h-section mt-1.5">Wszystko, czego potrzebuje biuro</h2>
+  <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <% features.forEach(function(f, i){ var bg = ['bg-navy-800','bg-teal-500','bg-orange-500'][i % 3]; %>
+    <div class="card card-pad"><span class="grid h-12 w-12 place-items-center rounded-2xl text-white <%= bg %>"><%- icon(f[0], 'ico-lg') %></span><h3 class="mt-5 font-display text-lg font-bold"><%= f[1] %></h3><p class="mt-2 text-sm text-muted"><%= f[2] %></p></div>
+    <% }) %>
+  </div>
+</section>
+
+<section class="border-y border-line bg-white py-16">
+  <div class="wrap">
+    <h2 class="h-section">Jak zostać partnerem?</h2>
+    <ol class="mt-8 grid gap-4 md:grid-cols-4">
+      <% [['Wypełnij formularz','Podaj dane biura i opisz, czego potrzebujesz.'],['Rozmowa z opiekunem','Omawiamy liczbę ofert, kont i zasięg w regionie.'],['Indywidualna propozycja','Przygotowujemy warunki dopasowane do biura.'],['Aktywacja panelu','Zakładamy konto biura i pomagamy przenieść oferty.']].forEach(function(s, i){ %>
+      <li class="relative rounded-3xl bg-paper p-6"><span class="font-display text-5xl font-extrabold text-navy-100"><%= i + 1 %></span><p class="mt-2 font-display text-lg font-bold"><%= s[0] %></p><p class="mt-1 text-sm text-muted"><%= s[1] %></p></li>
+      <% }) %>
+    </ol>
+  </div>
+</section>
+
+<section id="formularz" class="wrap grid gap-10 py-16 lg:grid-cols-[1fr_1.3fr]">
+  <div>
+    <h2 class="h-section">Porozmawiajmy</h2>
+    <p class="mt-3 text-muted">Odpowiadamy w ciągu 1–2 dni roboczych. Wolisz zadzwonić lub napisać?</p>
+    <div class="mt-6 grid gap-3">
+      <p class="flex items-center gap-3"><span class="grid h-11 w-11 place-items-center rounded-full bg-teal-50 text-teal-600"><%- icon('mail', 'ico') %></span><span class="select-all font-semibold"><%= site.contact.partnersEmail %></span></p>
+      <p class="flex items-center gap-3"><span class="grid h-11 w-11 place-items-center rounded-full bg-teal-50 text-teal-600"><%- icon('phone', 'ico') %></span><span class="select-all font-semibold"><%= site.contact.phone %></span></p>
+    </div>
+  </div>
+  <div class="card card-pad sm:p-8"><%- include('../partials/request-form', { kind: 'biuro', action: '/zostan-partnerem' }) %></div>
+</section>

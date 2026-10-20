@@ -1,0 +1,305 @@
+<%
+  var quickCities = ['trojmiasto','slupsk','koszalin','szczecin','ustka','bytow','miastko','chojnice','kolobrzeg','gdynia','lebork','wejherowo'];
+  var cnt = function(slug){ if (slug === 'trojmiasto') return ['gdansk','gdynia','sopot'].reduce(function(s,k){ return s + ((byCity[k]||{}).count||0); }, 0); return (byCity[slug]||{}).count || 0; };
+  var label = function(slug){ return slug === 'trojmiasto' ? 'Trójmiasto' : cityName(slug); };
+  var tabs = [['wyroznione','Wyróżnione', featured], ['najnowsze','Najnowsze', newest], ['pierwotny','Rynek pierwotny', primary]];
+%>
+
+<!-- ═════════════ HERO ═════════════ -->
+<section class="wrap pt-5">
+  <div class="relative overflow-hidden rounded-[2rem] bg-navy-900 sm:rounded-[2.5rem]">
+    <div class="scene absolute inset-0 bg-navy-900"><%- art.heroCoast() %></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-navy-950/85 via-navy-950/45 to-transparent"></div>
+    <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-navy-950/80 to-transparent"></div>
+    <div class="mosaic-band pointer-events-none absolute -right-6 top-8 hidden h-40 w-40 rotate-6 overflow-hidden rounded-3xl opacity-90 shadow-lift lg:block"><%- art.mosaic(4, 4, 21) %></div>
+
+    <div class="relative grid gap-10 px-5 pb-8 pt-14 sm:px-10 sm:pt-20 lg:grid-cols-[1fr_300px] lg:px-14 lg:pb-10">
+      <div class="min-w-0">
+        <p class="glass inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-medium text-white/90">
+          <span class="pulse-dot h-2 w-2 rounded-full bg-orange-500"></span>
+          <span><b class="num"><%= fmt.num(counts.total) %></b> <%= fmt.plural(counts.total, 'aktualne ogłoszenie', 'aktualne ogłoszenia', 'aktualnych ogłoszeń') %> z Pomorza</span>
+        </p>
+        <h1 class="mt-6 max-w-3xl font-display text-[2.5rem] font-extrabold leading-[1.04] tracking-tight text-white sm:text-6xl lg:text-[4.4rem]">
+          Nieruchomości od&nbsp;Szczecina <span class="text-sun-300">po&nbsp;Gdańsk.</span>
+        </h1>
+        <p class="mt-5 max-w-xl text-lg font-light text-white/80">Mieszkania, domy i działki w województwie pomorskim i zachodniopomorskim – od właścicieli, lokalnych biur i deweloperów. Jeden region, jedna wyszukiwarka.</p>
+      </div>
+
+      <div class="hidden flex-col justify-end gap-4 lg:flex">
+        <% var hl = newest[0]; if (hl) { %>
+        <a href="<%= hl.url %>" class="floaty block rounded-3xl bg-white p-3 shadow-lift">
+          <div class="scene h-36 overflow-hidden rounded-2xl"><% if (hl.images && hl.images[0]) { %><img src="<%= hl.images[0].url %>" alt=""><% } else { %><%- art.sceneFor(hl) %><% } %></div>
+          <div class="px-1.5 pb-1 pt-3">
+            <div class="flex items-center justify-between text-xs"><span class="flex items-center gap-1.5 font-semibold text-teal-600"><span class="h-1.5 w-1.5 rounded-full bg-teal-500"></span><%= fmt.timeAgo(hl.publishedAt || hl.createdAt) %></span><span class="text-muted"><%= hl.cityName %></span></div>
+            <p class="mt-1 line-clamp-2 font-display font-bold leading-tight"><%= hl.title %></p>
+            <p class="mt-0.5 text-sm text-muted num"><%= fmt.price(hl.price, hl.transaction) %><%= hl.area ? ' · ' + fmt.num(hl.area) + ' m²' : '' %></p>
+          </div>
+        </a>
+        <% } %>
+        <div class="glass rounded-3xl p-5 text-white">
+          <p class="text-xs font-bold uppercase tracking-widest text-white/60">Dwa województwa</p>
+          <div class="mt-3 grid grid-cols-2 gap-3">
+            <div><p class="font-display text-3xl font-extrabold num"><%= fmt.num(counts.pomorskie) %></p><p class="text-xs text-white/65">ofert · pomorskie</p></div>
+            <div><p class="font-display text-3xl font-extrabold num"><%= fmt.num(counts.zachodnie) %></p><p class="text-xs text-white/65">ofert · zachodniopom.</p></div>
+          </div>
+          <div class="mt-4 h-2 overflow-hidden rounded-full bg-white/15"><div class="h-full rounded-full bg-gradient-to-r from-teal-400 to-sun-400" style="width: <%= counts.total ? Math.round(counts.pomorskie / counts.total * 100) : 50 %>%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="relative px-5 pb-10 sm:px-10 lg:px-14">
+        <div class="max-w-5xl"><%- include('../partials/search-hero') %></div>
+        <div class="mt-5 flex flex-wrap items-center gap-2">
+          <span class="py-1.5 pr-1 text-sm text-white/60">Szybki wybór:</span>
+          <a href="/sprzedaz/mieszkania/trojmiasto" class="rounded-full border border-white/25 bg-navy-950/30 px-3.5 py-1.5 text-sm text-white/90 backdrop-blur transition hover:bg-white hover:text-navy-900">Mieszkania Trójmiasto</a>
+          <a href="/sprzedaz/domy/slupsk" class="rounded-full border border-white/25 bg-navy-950/30 px-3.5 py-1.5 text-sm text-white/90 backdrop-blur transition hover:bg-white hover:text-navy-900">Domy Słupsk</a>
+          <a href="/sprzedaz/dzialki/zachodniopomorskie" class="rounded-full border border-white/25 bg-navy-950/30 px-3.5 py-1.5 text-sm text-white/90 backdrop-blur transition hover:bg-white hover:text-navy-900">Działki Zachodniopomorskie</a>
+          <a href="/wynajem/mieszkania/szczecin" class="rounded-full border border-white/25 bg-navy-950/30 px-3.5 py-1.5 text-sm text-white/90 backdrop-blur transition hover:bg-white hover:text-navy-900">Wynajem Szczecin</a>
+          <a href="/sprzedaz/nieruchomosci/ustka?cechy=blisko_morza" class="rounded-full border border-white/25 bg-navy-950/30 px-3.5 py-1.5 text-sm text-white/90 backdrop-blur transition hover:bg-white hover:text-navy-900">Blisko morza – Ustka</a>
+        </div>
+    </div>
+
+    <div class="relative grid grid-cols-2 border-t border-white/15 text-white md:grid-cols-4">
+      <a href="/wojewodztwo/pomorskie" class="border-r border-white/15 px-5 py-5 transition hover:bg-white/5 sm:px-10"><p class="font-display text-2xl font-extrabold sm:text-3xl num"><%= fmt.num(counts.total) %></p><p class="text-sm text-white/60">aktywnych ogłoszeń</p></a>
+      <a href="/miasta" class="px-5 py-5 transition hover:bg-white/5 sm:px-10 md:border-r md:border-white/15"><p class="font-display text-2xl font-extrabold sm:text-3xl num"><%= LOC.CITIES.length %></p><p class="text-sm text-white/60">miast i miejscowości</p></a>
+      <a href="/biura" class="border-r border-t border-white/15 px-5 py-5 transition hover:bg-white/5 sm:px-10 md:border-t-0"><p class="font-display text-2xl font-extrabold sm:text-3xl num"><%= fmt.num(counts.agencies) %></p><p class="text-sm text-white/60">biur partnerskich</p></a>
+      <a href="/raport-cen" class="border-t border-white/15 px-5 py-5 transition hover:bg-white/5 sm:px-10 md:border-t-0"><p class="font-display text-2xl font-extrabold sm:text-3xl">2</p><p class="text-sm text-white/60">województwa, jeden portal</p></a>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ MIASTA – SZYBKI WYBÓR ═════════════ -->
+<section class="wrap pt-8">
+  <div class="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
+    <% quickCities.forEach(function(s){ %>
+    <a href="<%= s === 'trojmiasto' ? '/miasto/trojmiasto' : '/miasto/' + s %>" class="group flex shrink-0 items-center gap-2.5 rounded-full border border-line bg-white py-1.5 pl-1.5 pr-4 transition hover:border-teal-300 hover:shadow-soft">
+      <span class="scene h-9 w-9 overflow-hidden rounded-full"><%- art.scene(s === 'ustka' || s === 'kolobrzeg' || s === 'trojmiasto' ? 'sea' : s === 'szczecin' ? 'office' : 'block', null, s.length * 13) %></span>
+      <span class="text-sm font-semibold"><%= label(s) %></span>
+      <span class="text-xs text-muted num"><%= fmt.num(cnt(s)) %></span>
+    </a>
+    <% }) %>
+    <a href="/miasta" class="flex shrink-0 items-center gap-1.5 rounded-full px-4 text-sm font-semibold text-teal-600 hover:text-teal-700">Wszystkie <%- icon('arrow-right', 'ico-sm') %></a>
+  </div>
+</section>
+
+<!-- ═════════════ KATEGORIE ═════════════ -->
+<section class="wrap py-14">
+  <div class="mb-7 flex items-end justify-between gap-4">
+    <div><p class="eyebrow mb-1.5">Kategorie</p><h2 class="h-section">Czego szukasz?</h2></div>
+    <a href="/sprzedaz" class="hidden items-center gap-2 font-semibold hover:gap-3 sm:flex">Wszystkie oferty <%- icon('arrow-right', 'ico-sm') %></a>
+  </div>
+  <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <% P.TYPES.forEach(function(t, i){ var c = typeCounts[t.key] || { all: 0, sprzedaz: 0, wynajem: 0 }; var colors = ['bg-navy-800','bg-teal-500','bg-orange-500','bg-sun-400','bg-teal-700','bg-navy-600','bg-orange-600','bg-teal-400']; %>
+    <a href="/<%= t.key === 'pokoj' ? 'wynajem' : 'sprzedaz' %>/<%= t.slug %>" class="group relative overflow-hidden rounded-3xl border border-line bg-white p-5 transition hover:-translate-y-1 hover:border-navy-200 hover:shadow-lift">
+      <span class="absolute -right-5 -top-5 h-20 w-20 rotate-45 opacity-10 transition group-hover:opacity-20 <%= colors[i] %>"></span>
+      <span class="grid h-12 w-12 place-items-center rounded-2xl text-white <%= colors[i] %>"><%- icon(t.icon, 'ico-lg') %></span>
+      <p class="mt-6 font-display text-lg font-bold"><%= t.plural %></p>
+      <p class="text-sm text-muted num"><%= fmt.num(c.sprzedaz) %> na sprzedaż · <%= fmt.num(c.wynajem) %> wynajem</p>
+    </a>
+    <% }) %>
+  </div>
+</section>
+
+<!-- ═════════════ OFERTY (ZAKŁADKI) ═════════════ -->
+<section class="border-y border-line bg-white py-16 sm:py-20" data-tabs>
+  <div class="wrap">
+    <div class="mb-8 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+      <div><p class="eyebrow mb-1.5">Oferty</p><h2 class="h-section">Wybrane dla Ciebie</h2></div>
+      <div class="flex max-w-full gap-1 overflow-x-auto rounded-full bg-paper p-1.5 hide-scrollbar" role="tablist">
+        <% tabs.forEach(function(t, i){ %><button type="button" role="tab" data-tab="<%= t[0] %>" aria-selected="<%= i === 0 %>" class="whitespace-nowrap rounded-full px-5 py-2 text-sm font-semibold transition aria-selected:bg-white aria-selected:text-navy-900 aria-selected:shadow-sm text-muted hover:text-navy-900"><%= t[1] %></button><% }) %>
+      </div>
+    </div>
+    <% tabs.forEach(function(t, i){ %>
+    <div data-panel="<%= t[0] %>" <%= i ? 'hidden' : '' %>>
+      <% if (t[2].length) { %>
+      <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <% t[2].slice(0, i === 0 ? 7 : 8).forEach(function(l, j){ %>
+          <% if (i === 0 && j === 3) { %><div><%- include('../partials/ad-slot', { ad: adSlots.home_tile, placement: 'home_tile', shape: 'tile' }) %></div><% } %>
+          <%- include('../partials/listing-card', { l: l }) %>
+        <% }) %>
+      </div>
+      <% } else { %>
+      <div class="rounded-3xl border-2 border-dashed border-line p-10 text-center text-muted">Wkrótce pojawią się tu pierwsze oferty. <a href="/panel/ogloszenia/nowe" class="font-semibold text-teal-600">Dodaj ogłoszenie</a></div>
+      <% } %>
+    </div>
+    <% }) %>
+    <div class="mt-10 flex flex-col items-center justify-between gap-4 rounded-3xl bg-paper p-5 sm:flex-row sm:p-6">
+      <div class="flex items-center gap-4">
+        <span class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-teal-500 text-white"><%- icon('bell', 'ico-lg') %></span>
+        <div><p class="font-display text-lg font-bold leading-tight">Powiadomienia o nowych ofertach</p><p class="text-sm text-muted">Zapisz wyszukiwanie – damy znać, gdy pojawi się coś w Twojej okolicy.</p></div>
+      </div>
+      <a href="/sprzedaz" class="btn btn-primary w-full sm:w-auto">Ustaw wyszukiwanie <%- icon('arrow-right', 'ico-sm') %></a>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ BILLBOARD ═════════════ -->
+<section class="wrap pt-14"><%- include('../partials/ad-slot', { ad: adSlots.home_billboard, placement: 'home_billboard', shape: 'banner' }) %></section>
+
+<!-- ═════════════ MIASTA BENTO ═════════════ -->
+<section class="wrap py-16 sm:py-20">
+  <div class="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+    <div><p class="eyebrow mb-1.5">Lokalizacje</p><h2 class="h-section">Najpopularniejsze rynki regionu</h2></div>
+    <a href="/miasta" class="flex items-center gap-2 font-semibold hover:gap-3"><%= LOC.CITIES.length %> miejscowości <%- icon('arrow-right', 'ico-sm') %></a>
+  </div>
+  <div class="grid grid-cols-2 gap-4 md:h-[560px] md:grid-cols-4 md:grid-rows-2">
+    <% bento.forEach(function(b, i){ var span = i === 0 ? 'col-span-2 md:row-span-2' : i === 1 ? 'col-span-2 md:col-span-1' : ''; %>
+    <a href="<%= b.href %>" class="group relative min-h-[190px] overflow-hidden rounded-[1.75rem] <%= span %>">
+      <div class="scene absolute inset-0 transition duration-1000 group-hover:scale-105"><%- art.scene(b.scene[0], b.scene[1], b.scene[2]) %></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-navy-950/85 via-navy-950/15 to-transparent"></div>
+      <% if (b.avgM2) { %><span class="absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-navy-800 num"><%= fmt.num(Math.round(b.avgM2 / 10) * 10) %> zł/m²</span><% } %>
+      <div class="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5 text-white">
+        <div class="min-w-0"><h3 class="font-display <%= i === 0 ? 'text-3xl sm:text-4xl' : 'text-2xl' %> font-extrabold text-white"><%= b.name %></h3><p class="text-sm text-white/75"><%= b.sub %> · <span class="num"><%= fmt.num(b.count) %></span> ofert</p></div>
+        <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/20 backdrop-blur transition group-hover:bg-white group-hover:text-navy-900"><%- icon('arrow-up-right', 'ico') %></span>
+      </div>
+    </a>
+    <% }) %>
+  </div>
+
+  <div class="mt-6 grid gap-4 md:grid-cols-2">
+    <% [['pomorskie','Pomorskie','bg-navy-800'],['zachodniopomorskie','Zachodniopomorskie','bg-teal-600']].forEach(function(v){ %>
+    <div class="card card-pad min-w-0">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3"><span class="grid h-10 w-10 place-items-center rounded-xl text-white <%= v[2] %>"><%- icon('map', 'ico') %></span><h3 class="font-display text-xl font-bold">Województwo <%= v[1].toLowerCase() %></h3></div>
+        <a href="/wojewodztwo/<%= v[0] %>" class="text-sm font-semibold text-teal-600 hover:text-teal-700">Wszystkie oferty</a>
+      </div>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <% LOC.MAJOR.filter(function(c){ return c.voivodeship === v[0]; }).forEach(function(c){ %><a href="/miasto/<%= c.slug %>" class="chip"><%= c.name %><span class="text-xs text-muted num"><%= fmt.num((byCity[c.slug]||{}).count || 0) %></span></a><% }) %>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+</section>
+
+<!-- ═════════════ NAD MORZEM ═════════════ -->
+<section class="relative overflow-hidden bg-teal-700 py-16 text-white sm:py-20">
+  <div class="absolute inset-x-0 bottom-0 h-40 opacity-25"><svg viewBox="0 0 1440 160" preserveAspectRatio="none" class="h-full w-full"><path d="M0 80 C 240 20 480 140 720 80 S 1200 20 1440 80 V160 H0Z" fill="#fff"/><path d="M0 110 C 300 60 520 160 760 110 S 1180 60 1440 110 V160 H0Z" fill="#fff" opacity=".6"/></svg></div>
+  <div class="wrap relative">
+    <div class="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+      <div class="max-w-2xl"><p class="mb-1.5 text-xs font-bold uppercase tracking-[.16em] text-sun-300">Wybrzeże</p><h2 class="font-display text-3xl font-extrabold text-white sm:text-4xl">Nieruchomości nad Bałtykiem</h2><p class="mt-3 text-white/75">Od Świnoujścia i Międzyzdrojów, przez Kołobrzeg, Mielno i Ustkę, po Łebę, Władysławowo i Sopot.</p></div>
+      <a href="/sprzedaz/nieruchomosci?cechy=blisko_morza" class="btn btn-white w-fit">Oferty blisko morza <%- icon('waves', 'ico-sm') %></a>
+    </div>
+    <div class="flex snap-x gap-4 overflow-x-auto pb-3 hide-scrollbar">
+      <% coastalRows.forEach(function(c, i){ %>
+      <a href="/miasto/<%= c.slug %>" class="group w-[220px] shrink-0 snap-start overflow-hidden rounded-3xl bg-white text-navy-900 transition hover:-translate-y-1">
+        <div class="scene h-32"><%- art.scene('sea', ['day','dawn','teal','dusk'][i % 4], 40 + i) %></div>
+        <div class="p-4"><p class="font-display font-bold"><%= c.name %></p><p class="text-xs text-muted"><%= c.voivodeship === 'pomorskie' ? 'Pomorskie' : 'Zachodniopomorskie' %> · <span class="num"><%= fmt.num(c.count) %></span> ofert</p></div>
+      </a>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ NARZĘDZIA ═════════════ -->
+<section class="wrap py-16 sm:py-20">
+  <div class="grid gap-4 lg:grid-cols-3">
+    <a href="/raport-cen" class="group relative overflow-hidden rounded-[1.75rem] bg-navy-800 p-7 text-white">
+      <div class="mosaic-band absolute -right-8 -top-8 h-32 w-32 rotate-12 overflow-hidden rounded-2xl opacity-40"><%- art.mosaic(3, 3, 5) %></div>
+      <span class="grid h-12 w-12 place-items-center rounded-2xl bg-white/10"><%- icon('chart', 'ico-lg') %></span>
+      <h3 class="mt-6 font-display text-2xl font-bold text-white">Raport cen m²</h3>
+      <p class="mt-2 text-white/70">Średnie ceny mieszkań i stawki najmu w miastach Pomorza i Pomorza Zachodniego.</p>
+      <span class="mt-6 inline-flex items-center gap-2 font-semibold text-sun-300 group-hover:gap-3">Zobacz raport <%- icon('arrow-right', 'ico-sm') %></span>
+    </a>
+    <a href="/kalkulator-kredytowy" class="group relative overflow-hidden rounded-[1.75rem] bg-orange-500 p-7 text-white">
+      <span class="grid h-12 w-12 place-items-center rounded-2xl bg-white/15"><%- icon('calculator', 'ico-lg') %></span>
+      <h3 class="mt-6 font-display text-2xl font-bold text-white">Kalkulator kredytu</h3>
+      <p class="mt-2 text-white/85">Policz ratę, odsetki i potrzebny wkład własny – zanim pójdziesz do banku.</p>
+      <span class="mt-6 inline-flex items-center gap-2 font-semibold group-hover:gap-3">Policz ratę <%- icon('arrow-right', 'ico-sm') %></span>
+    </a>
+    <a href="/poradnik" class="group relative overflow-hidden rounded-[1.75rem] border border-line bg-white p-7">
+      <span class="grid h-12 w-12 place-items-center rounded-2xl bg-teal-50 text-teal-600"><%- icon('file', 'ico-lg') %></span>
+      <h3 class="mt-6 font-display text-2xl font-bold">Poradnik</h3>
+      <p class="mt-2 text-muted">Księga wieczysta, koszty zakupu, najem okazjonalny, działki – po polsku i konkretnie.</p>
+      <span class="mt-6 inline-flex items-center gap-2 font-semibold text-teal-600 group-hover:gap-3">Czytaj porady <%- icon('arrow-right', 'ico-sm') %></span>
+    </a>
+  </div>
+</section>
+
+<!-- ═════════════ DLA BIUR / SPRZEDAJĄCYCH ═════════════ -->
+<section class="wrap pb-16 sm:pb-20">
+  <div class="grid gap-4 lg:grid-cols-[1.25fr_1fr]">
+    <div class="relative overflow-hidden rounded-[2rem] bg-navy-900 p-7 text-white sm:p-10">
+      <div class="mosaic-band absolute bottom-0 right-0 h-full w-1/3 overflow-hidden opacity-30 [mask-image:linear-gradient(to_left,black,transparent)]"><%- art.mosaic(4, 8, 77) %></div>
+      <div class="relative max-w-xl">
+        <p class="text-xs font-bold uppercase tracking-[.16em] text-sun-300">Dla biur nieruchomości i deweloperów</p>
+        <h2 class="mt-3 font-display text-3xl font-extrabold text-white sm:text-4xl">Zostań partnerem ModulioEstate</h2>
+        <p class="mt-4 text-white/75">Panel biura z CRM zapytań, zespołem agentów, statystykami i własną stroną firmową w serwisie. Warunki współpracy ustalamy indywidualnie – napisz do nas, a opiekun przygotuje propozycję.</p>
+        <ul class="mt-6 grid gap-3 text-white/85 sm:grid-cols-2">
+          <% ['Wyróżnienia i podbicia ofert','Strona biura z własnym adresem','CRM: zapytania, notatki, prezentacje','Konta dla całego zespołu'].forEach(function(f){ %><li class="flex items-start gap-2.5"><span class="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-teal-500"><%- icon('check', 'ico-sm') %></span><%= f %></li><% }) %>
+        </ul>
+        <div class="mt-8 flex flex-wrap gap-3"><a href="/zostan-partnerem" class="btn btn-accent btn-lg">Skontaktuj się z nami</a><a href="/biura" class="btn btn-lg border border-white/25 text-white hover:bg-white/10">Biura partnerskie</a></div>
+      </div>
+    </div>
+    <div class="rounded-[2rem] border border-line bg-white p-7 sm:p-10">
+      <p class="eyebrow">Sprzedajesz lub wynajmujesz sam?</p>
+      <h2 class="mt-3 font-display text-3xl font-extrabold">Dodaj ogłoszenie prywatne</h2>
+      <ol class="mt-6 grid gap-4">
+        <% [['Załóż konto','E-mailem lub przez Google – w minutę.'],['Opisz nieruchomość','Zdjęcia, parametry, lokalizacja na mapie.'],['Odbieraj zapytania','Wiadomości i statystyki w Twoim panelu.']].forEach(function(s, i){ %>
+        <li class="flex gap-4"><span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-sun-400 font-display font-bold text-navy-900"><%= i + 1 %></span><div><p class="font-semibold"><%= s[0] %></p><p class="text-sm text-muted"><%= s[1] %></p></div></li>
+        <% }) %>
+      </ol>
+      <a href="/panel/ogloszenia/nowe" class="btn btn-primary mt-8 w-full">Dodaj ogłoszenie <%- icon('plus', 'ico-sm') %></a>
+    </div>
+  </div>
+</section>
+
+<% if (agencies.length) { %>
+<!-- ═════════════ BIURA ═════════════ -->
+<section class="border-y border-line bg-white py-16">
+  <div class="wrap">
+    <div class="mb-8 flex items-end justify-between gap-4"><div><p class="eyebrow mb-1.5">Partnerzy</p><h2 class="h-section">Biura nieruchomości z regionu</h2></div><a href="/biura" class="hidden items-center gap-2 font-semibold hover:gap-3 sm:flex">Katalog biur <%- icon('arrow-right', 'ico-sm') %></a></div>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <% agencies.forEach(function(a){ %>
+      <a href="/biuro/<%= a.slug %>" class="group flex items-center gap-4 rounded-3xl border border-line p-4 transition hover:border-navy-200 hover:shadow-soft">
+        <span class="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-2xl bg-paper font-display text-lg font-bold text-navy-800"><% if (a.logo) { %><img src="<%= a.logo %>" alt="<%= a.name %>" class="h-full w-full object-contain p-1.5"><% } else { %><%= a.name.slice(0, 2).toUpperCase() %><% } %></span>
+        <span class="min-w-0"><span class="block truncate font-semibold group-hover:text-teal-600"><%= a.name %></span><span class="text-sm text-muted"><%= cityName(a.city) %></span></span>
+      </a>
+      <% }) %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<!-- ═════════════ PORADNIK ═════════════ -->
+<section class="wrap py-16 sm:py-20">
+  <div class="mb-8 flex items-end justify-between gap-4"><div><p class="eyebrow mb-1.5">Poradnik</p><h2 class="h-section">Zanim podpiszesz umowę</h2></div><a href="/poradnik" class="hidden items-center gap-2 font-semibold hover:gap-3 sm:flex">Wszystkie artykuły <%- icon('arrow-right', 'ico-sm') %></a></div>
+  <div class="grid gap-5 md:grid-cols-3">
+    <% articles.forEach(function(a){ %>
+    <a href="/poradnik/<%= a.slug %>" class="group overflow-hidden rounded-[1.75rem] border border-line bg-white transition hover:shadow-lift">
+      <div class="scene aspect-[16/9]"><%- art.scene(a.scene[0], a.scene[1], a.scene[2]) %></div>
+      <div class="p-5"><span class="badge tone-teal"><%= a.category %></span><h3 class="mt-3 font-display text-lg font-bold leading-snug group-hover:text-teal-600"><%= a.title %></h3><p class="mt-2 line-clamp-2 text-sm text-muted"><%= a.excerpt %></p></div>
+    </a>
+    <% }) %>
+  </div>
+</section>
+
+<!-- ═════════════ FAQ + SEO ═════════════ -->
+<section class="border-t border-line bg-white py-16 sm:py-20">
+  <div class="wrap grid gap-12 lg:grid-cols-2">
+    <div>
+      <p class="eyebrow mb-1.5">Pytania</p>
+      <h2 class="h-section">Najczęstsze pytania</h2>
+      <div class="mt-6 divide-y divide-line rounded-3xl border border-line">
+        <% faq.forEach(function(f){ %>
+        <details class="group px-5 py-4">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold [&::-webkit-details-marker]:hidden"><%= f[0] %><span class="transition group-open:rotate-45"><%- icon('plus', 'ico') %></span></summary>
+          <p class="mt-3 text-muted"><%= f[1] %></p>
+        </details>
+        <% }) %>
+      </div>
+    </div>
+    <div>
+      <p class="eyebrow mb-1.5">Region</p>
+      <h2 class="h-section">Nieruchomości na Pomorzu i Pomorzu Zachodnim</h2>
+      <div class="prose-me mt-4 text-muted">
+        <p>ModulioEstate skupia ogłoszenia z dwóch nadmorskich województw. Szukasz mieszkania w <a href="/sprzedaz/mieszkania/gdansk">Gdańsku</a>, <a href="/sprzedaz/mieszkania/gdynia">Gdyni</a> lub <a href="/sprzedaz/mieszkania/szczecin">Szczecinie</a>? Domu pod <a href="/sprzedaz/domy/slupsk">Słupskiem</a> albo <a href="/sprzedaz/domy/koszalin">Koszalinem</a>? Działki na Kaszubach koło <a href="/sprzedaz/dzialki/bytow">Bytowa</a> czy <a href="/sprzedaz/dzialki/miastko">Miastka</a>? Wszystkie oferty znajdziesz w jednym miejscu.</p>
+        <p>Na stronach miast pokazujemy średnie ceny za metr kwadratowy, najnowsze oferty i lokalne biura nieruchomości.</p>
+      </div>
+      <div class="mt-5 flex flex-wrap gap-2 text-sm">
+        <% [['sprzedaz','mieszkania','trojmiasto','Mieszkania Trójmiasto'],['sprzedaz','mieszkania','slupsk','Mieszkania Słupsk'],['sprzedaz','mieszkania','koszalin','Mieszkania Koszalin'],['sprzedaz','mieszkania','szczecin','Mieszkania Szczecin'],['sprzedaz','domy','chojnice','Domy Chojnice'],['sprzedaz','dzialki','ustka','Działki Ustka'],['wynajem','mieszkania','gdansk','Wynajem Gdańsk'],['wynajem','mieszkania','slupsk','Wynajem Słupsk'],['sprzedaz','mieszkania','kolobrzeg','Mieszkania Kołobrzeg'],['sprzedaz','domy','bytow','Domy Bytów'],['sprzedaz','mieszkania','miastko','Mieszkania Miastko'],['sprzedaz','lokale-uzytkowe','szczecin','Lokale Szczecin']].forEach(function(x){ %>
+        <a href="/<%= x[0] %>/<%= x[1] %>/<%= x[2] %>" class="chip"><%= x[3] %></a>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+</section>

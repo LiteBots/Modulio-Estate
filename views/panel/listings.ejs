@@ -1,0 +1,32 @@
+<div class="flex flex-wrap items-end justify-between gap-4">
+  <div><h1 class="font-display text-3xl font-extrabold">Moje ogłoszenia</h1><p class="mt-1 text-muted">Konto prywatne: do <%= limit %> aktywnych ogłoszeń, każde widoczne przez 60 dni.</p></div>
+  <a href="/panel/ogloszenia/nowe" class="btn btn-accent"><%- icon('plus', 'ico-sm') %>Dodaj ogłoszenie</a>
+</div>
+<% if (listings.length) { %>
+<div class="mt-6 grid gap-3">
+  <% listings.forEach(function(l){ %>
+  <div class="card flex flex-col gap-4 p-4 md:flex-row md:items-center">
+    <a href="<%= l.url %>" class="scene h-24 w-full shrink-0 overflow-hidden rounded-2xl md:w-36"><% if (l.images && l.images[0]) { %><img src="<%= l.images[0].url %>" alt=""><% } else { %><%- art.sceneFor(l) %><% } %></a>
+    <div class="min-w-0 flex-1">
+      <div class="flex flex-wrap items-center gap-2"><%- include('../partials/status-badge', { s: l.status }) %><span class="text-xs text-muted">nr <%= l.num %></span><% if (l.expiresAt && l.status === 'active') { %><span class="text-xs text-muted">· wygasa <%= fmt.dateShort(l.expiresAt) %></span><% } %></div>
+      <a href="<%= l.url %>" class="mt-1 block truncate font-display text-lg font-bold hover:text-teal-600"><%= l.title %></a>
+      <p class="text-sm text-muted num"><%= fmt.price(l.price, l.transaction) %> · <%= l.cityName %> · <%= fmt.num(l.views) %> wyśw. · <%= l.phoneReveals %> tel. · <%= l.inquiriesCount %> zapytań</p>
+      <% if (l.status === 'blocked' && l.moderationNote) { %><p class="mt-1 text-sm text-red-700">Moderacja: <%= l.moderationNote %></p><% } %>
+    </div>
+    <form method="post" action="/panel/ogloszenia/<%= l._id %>/status" class="flex flex-wrap gap-2">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <a href="/panel/ogloszenia/<%= l._id %>/edytuj" class="btn btn-outline btn-sm"><%- icon('edit', 'ico-sm') %>Edytuj</a>
+      <% if (l.status === 'draft' || l.status === 'archived') { %><button name="action" value="<%= l.status === 'archived' ? 'extend' : 'publish' %>" class="btn btn-teal btn-sm">Publikuj</button><% } %>
+      <% if (l.status === 'active') { %><button name="action" value="extend" class="btn btn-ghost btn-sm" title="Przedłuż o 60 dni i podbij">Przedłuż</button><button name="action" value="reserved" class="btn btn-ghost btn-sm">Rezerwacja</button><% } %>
+      <% if (['active','reserved'].includes(l.status)) { %><button name="action" value="sold" class="btn btn-ghost btn-sm">Sprzedane</button><button name="action" value="archived" class="btn btn-ghost btn-sm">Archiwizuj</button><% } %>
+      <button name="action" value="delete" class="btn btn-ghost btn-sm text-red-600" data-confirm="Usunąć ogłoszenie na stałe?"><%- icon('trash', 'ico-sm') %></button>
+    </form>
+  </div>
+  <% }) %>
+</div>
+<% } else { %>
+<div class="card mt-6 grid items-center gap-6 p-8 md:grid-cols-[1fr_auto]">
+  <div><p class="font-display text-2xl font-bold">Sprzedaj lub wynajmij bez pośrednika</p><p class="mt-2 text-muted">Dodanie ogłoszenia prywatnego zajmuje kilka minut. Otrzymasz zapytania w panelu i e-mailem.</p></div>
+  <a href="/panel/ogloszenia/nowe" class="btn btn-accent btn-lg">Dodaj ogłoszenie</a>
+</div>
+<% } %>

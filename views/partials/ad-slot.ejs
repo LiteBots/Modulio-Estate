@@ -1,0 +1,31 @@
+<%
+  var spec = P.AD_PLACEMENTS[placement] || {};
+  var shape = typeof shape !== 'undefined' ? shape : 'banner';
+%>
+<% if (ad) { %>
+<a href="/r/<%= ad._id %>" rel="sponsored noopener" target="_blank" class="group relative block overflow-hidden rounded-[1.75rem] border border-line bg-white <%= shape === 'tile' ? 'h-full min-h-[340px]' : '' %>">
+  <span class="absolute right-3 top-3 z-10 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-muted">Reklama</span>
+  <% if (ad.image) { %>
+  <picture>
+    <% if (ad.imageMobile) { %><source media="(max-width: 640px)" srcset="<%= ad.imageMobile %>"><% } %>
+    <img src="<%= ad.image %>" alt="<%= ad.headline || ad.name %>" loading="lazy" class="h-full w-full object-cover transition duration-700 group-hover:scale-[1.02]">
+  </picture>
+  <% } else { %>
+  <div class="flex h-full flex-col justify-center gap-2 bg-gradient-to-r from-navy-800 to-teal-600 p-6 text-white sm:p-8">
+    <p class="font-display text-2xl font-extrabold"><%= ad.headline || ad.name %></p>
+    <% if (ad.text) { %><p class="max-w-xl text-white/80"><%= ad.text %></p><% } %>
+    <% if (ad.cta) { %><span class="btn btn-white btn-sm mt-2 w-fit"><%= ad.cta %></span><% } %>
+  </div>
+  <% } %>
+</a>
+<% } else { %>
+<a href="/reklama" class="group relative flex items-center gap-5 overflow-hidden rounded-[1.75rem] border-2 border-dashed border-navy-200 bg-white/60 p-5 transition hover:border-orange-400 hover:bg-white sm:p-6 <%= shape === 'tile' ? 'h-full min-h-[340px] flex-col justify-center text-center' : '' %>">
+  <div class="mosaic-band <%= shape === 'tile' ? 'h-20 w-28' : 'hidden h-16 w-24 sm:block' %> shrink-0 overflow-hidden rounded-xl"><%- art.mosaic(3, 2, placement.length * 7) %></div>
+  <div class="min-w-0">
+    <p class="text-[10px] font-bold uppercase tracking-widest text-muted">Miejsce reklamowe</p>
+    <p class="mt-1 font-display text-lg font-bold">Twoja reklama w tym miejscu</p>
+    <p class="text-sm text-muted">Dotrzyj do kupujących i najemców na Pomorzu. Format <%= spec.size %>.</p>
+  </div>
+  <span class="btn btn-outline btn-sm <%= shape === 'tile' ? 'mt-2' : 'ml-auto hidden md:inline-flex' %> group-hover:border-orange-400">Zapytaj o ofertę <%- icon('arrow-right', 'ico-sm') %></span>
+</a>
+<% } %>

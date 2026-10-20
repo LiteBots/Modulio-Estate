@@ -1,0 +1,23 @@
+<a href="/admin/reklamy" class="text-sm font-semibold text-muted hover:text-navy-900">← Reklamy</a>
+<h1 class="mt-2 font-display text-3xl font-extrabold"><%= isNew ? 'Nowa reklama' : ad.name %></h1>
+<form method="post" action="<%= isNew ? '/admin/reklamy/nowa' : '/admin/reklamy/' + ad._id %>" enctype="multipart/form-data" class="mt-6 grid gap-6 xl:grid-cols-2">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <section class="card card-pad grid content-start gap-4">
+    <div class="grid gap-4 sm:grid-cols-2"><div><label class="label" for="ad-name">Nazwa kampanii</label><input id="ad-name" name="name" required class="input" value="<%= ad.name || '' %>"></div><div><label class="label" for="ad-adv">Reklamodawca</label><input id="ad-adv" name="advertiser" class="input" value="<%= ad.advertiser || '' %>"></div></div>
+    <div><label class="label" for="ad-pl">Miejsce</label><select id="ad-pl" name="placement" class="select"><% Object.keys(P.AD_PLACEMENTS).forEach(function(k){ %><option value="<%= k %>" <%= ad.placement === k ? 'selected' : '' %>><%= P.AD_PLACEMENTS[k].label %> (<%= P.AD_PLACEMENTS[k].size %>)</option><% }) %></select></div>
+    <div><label class="label" for="ad-url">Adres docelowy</label><input id="ad-url" name="url" type="url" class="input" value="<%= ad.url || '' %>" placeholder="https://"></div>
+    <div><label class="label">Grafika</label><% if (ad.image) { %><img src="<%= ad.image %>" alt="" class="mb-2 max-h-40 rounded-2xl"><% } %><input type="file" name="image" accept="image/*" class="text-sm"><input name="imageUrl" class="input mt-2 text-sm" placeholder="…lub adres grafiki https://"></div>
+    <div><label class="label">Grafika mobilna (opcjonalnie)</label><input type="file" name="imageMobile" accept="image/*" class="text-sm"></div>
+    <p class="text-sm text-muted">Bez grafiki wyświetli się baner tekstowy z poniższych pól.</p>
+    <div><label class="label" for="ad-h">Nagłówek</label><input id="ad-h" name="headline" class="input" value="<%= ad.headline || '' %>"></div>
+    <div><label class="label" for="ad-t">Tekst</label><input id="ad-t" name="text" class="input" value="<%= ad.text || '' %>"></div>
+    <div><label class="label" for="ad-c">Przycisk</label><input id="ad-c" name="cta" class="input" value="<%= ad.cta || '' %>" placeholder="Sprawdź ofertę"></div>
+  </section>
+  <section class="card card-pad grid content-start gap-4">
+    <div class="grid gap-4 sm:grid-cols-2"><div><label class="label" for="ad-s">Start</label><input id="ad-s" name="startsAt" type="date" class="input" value="<%= fmt.inputDate(ad.startsAt) %>"></div><div><label class="label" for="ad-e">Koniec</label><input id="ad-e" name="endsAt" type="date" class="input" value="<%= fmt.inputDate(ad.endsAt) %>"></div></div>
+    <div><span class="label">Województwa (puste = oba)</span><div class="flex gap-4 text-sm"><% ['pomorskie','zachodniopomorskie'].forEach(function(v){ %><label class="flex items-center gap-2"><input type="checkbox" name="voivodeships" value="<%= v %>" class="check" <%= (ad.voivodeships || []).includes(v) ? 'checked' : '' %>><%= v %></label><% }) %></div></div>
+    <div><label class="label" for="ad-cities">Miasta (puste = wszystkie)</label><select id="ad-cities" name="cities" multiple size="10" class="select"><% LOC.CITIES.slice().sort(function(x,y){ return x.name.localeCompare(y.name, 'pl'); }).forEach(function(c){ %><option value="<%= c.slug %>" <%= (ad.cities || []).includes(c.slug) ? 'selected' : '' %>><%= c.name %></option><% }) %></select><p class="hint">Kierowanie na miasto działa na stronach miasta, wynikach wyszukiwania w tym mieście i ogłoszeniach z tego miasta.</p></div>
+    <div class="grid gap-4 sm:grid-cols-2"><div><label class="label" for="ad-pr">Priorytet (1–10)</label><input id="ad-pr" name="priority" type="number" min="1" max="10" class="input" value="<%= ad.priority || 1 %>"></div><label class="flex items-center gap-2 self-end text-sm"><input type="checkbox" name="active" class="check" <%= ad.active ? 'checked' : '' %>>Aktywna</label></div>
+    <div class="flex gap-2"><button class="btn btn-primary">Zapisz</button><% if (!isNew) { %><button name="action" value="delete" class="btn btn-ghost text-red-600" data-confirm="Usunąć reklamę?">Usuń</button><% } %></div>
+  </section>
+</form>

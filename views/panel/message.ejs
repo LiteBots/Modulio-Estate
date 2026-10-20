@@ -1,0 +1,29 @@
+<a href="/panel/wiadomosci<%= side === 'seller' ? '?skrzynka=odebrane' : '' %>" class="text-sm font-semibold text-muted hover:text-navy-900">← Wiadomości</a>
+<div class="mt-3 grid gap-6 xl:grid-cols-[1fr_320px]">
+  <div class="card flex min-h-[60vh] flex-col">
+    <div class="border-b border-line p-5"><h1 class="font-display text-xl font-bold"><%= inq.listing ? inq.listing.title : 'Wiadomość do ' + (inq.agency ? inq.agency.name : 'biura') %></h1><p class="text-sm text-muted">Rozpoczęto <%= fmt.dateTime(inq.createdAt) %></p></div>
+    <div class="flex-1 space-y-4 p-5">
+      <div class="flex <%= side === 'client' ? 'justify-end' : '' %>"><div class="max-w-[80%] rounded-3xl <%= side === 'client' ? 'rounded-br-md bg-navy-800 text-white' : 'rounded-bl-md bg-paper' %> px-4 py-3"><p class="text-xs opacity-70"><%= inq.name %> · <%= fmt.dateTime(inq.createdAt) %></p><p class="mt-1 whitespace-pre-line"><%= inq.message %></p></div></div>
+      <% inq.replies.forEach(function(r){ var mine = r.side === side; %>
+      <div class="flex <%= mine ? 'justify-end' : '' %>"><div class="max-w-[80%] rounded-3xl <%= mine ? 'rounded-br-md bg-navy-800 text-white' : 'rounded-bl-md bg-paper' %> px-4 py-3"><p class="text-xs opacity-70"><%= r.authorName %> · <%= fmt.dateTime(r.at) %></p><p class="mt-1 whitespace-pre-line"><%= r.text %></p></div></div>
+      <% }) %>
+      <span id="koniec"></span>
+    </div>
+    <form method="post" action="/panel/wiadomosci/<%= inq._id %>" class="flex gap-2 border-t border-line p-4">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <label for="reply" class="sr-only">Odpowiedź</label><textarea id="reply" name="text" required class="textarea !min-h-[52px] flex-1" rows="2" placeholder="Napisz odpowiedź…"></textarea>
+      <button class="btn btn-primary self-end"><%- icon('send', 'ico-sm') %></button>
+    </form>
+  </div>
+  <aside class="grid content-start gap-4">
+    <% if (inq.listing) { %>
+    <a href="/oferta/<%= inq.listing.slug %>-<%= inq.listing.num %>" class="card overflow-hidden hover:shadow-soft">
+      <div class="scene aspect-[16/10]"><% if (inq.listing.images && inq.listing.images[0]) { %><img src="<%= inq.listing.images[0].url %>" alt=""><% } else { %><%- art.scene('block', null, inq.listing.num) %><% } %></div>
+      <div class="p-4"><p class="font-semibold"><%= inq.listing.title %></p><p class="text-sm text-muted num"><%= fmt.price(inq.listing.price, inq.listing.transaction) %> · <%= inq.listing.cityName %></p></div>
+    </a>
+    <% } %>
+    <% if (side === 'seller') { %>
+    <div class="card card-pad text-sm"><p class="font-semibold">Dane kontaktowe</p><p class="mt-2 select-all"><%= inq.email %></p><% if (inq.phone) { %><p class="select-all"><%= inq.phone %></p><% } %></div>
+    <% } %>
+  </aside>
+</div>

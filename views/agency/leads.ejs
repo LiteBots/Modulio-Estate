@@ -1,0 +1,37 @@
+<div class="flex flex-wrap items-end justify-between gap-4">
+  <div><h1 class="font-display text-3xl font-extrabold">Zapytania – CRM</h1><p class="mt-1 text-muted">Prowadź klienta od pierwszej wiadomości do transakcji.</p></div>
+  <div class="flex gap-2">
+    <div class="flex rounded-full bg-white p-1 ring-1 ring-line"><a href="/biuro-panel/zapytania" class="rounded-full px-4 py-1.5 text-sm font-semibold <%= view === 'tablica' ? 'bg-navy-800 text-white' : 'text-muted' %>">Tablica</a><a href="/biuro-panel/zapytania?widok=lista" class="rounded-full px-4 py-1.5 text-sm font-semibold <%= view === 'lista' ? 'bg-navy-800 text-white' : 'text-muted' %>">Lista</a></div>
+    <% if (isManager) { %><a href="/biuro-panel/zapytania?moje=1<%= view === 'lista' ? '&widok=lista' : '' %>" class="btn btn-outline btn-sm <%= query.moje === '1' ? 'chip-on' : '' %>">Tylko moje</a><% } %>
+  </div>
+</div>
+<% if (view === 'tablica') { %>
+<div class="mt-6 flex gap-4 overflow-x-auto pb-4">
+  <% columns.forEach(function(col){ %>
+  <section class="w-[290px] shrink-0 rounded-3xl bg-white/70 p-3 ring-1 ring-line">
+    <header class="flex items-center justify-between px-2 pb-3"><span class="badge tone-<%= col.tone %>"><%= col.label %></span><span class="text-sm font-bold text-muted num"><%= col.items.length %></span></header>
+    <div class="grid gap-2">
+      <% col.items.slice(0, 40).forEach(function(ld){ %>
+      <a href="/biuro-panel/zapytania/<%= ld._id %>" class="block rounded-2xl border border-line bg-white p-3.5 transition hover:border-navy-200 hover:shadow-soft">
+        <div class="flex items-start justify-between gap-2"><p class="font-semibold leading-tight <%= !ld.readBySeller ? 'text-orange-600' : '' %>"><%= ld.name %></p><span class="shrink-0 text-[11px] text-muted"><%= fmt.timeAgo(ld.createdAt) %></span></div>
+        <p class="mt-1 line-clamp-2 text-sm text-muted"><%= ld.listing ? ld.listing.title : (ld.topic === 'wycena' ? 'Prośba o wycenę / sprzedaż' : 'Strona biura') %></p>
+        <div class="mt-2.5 flex flex-wrap items-center gap-1.5 text-[11px]">
+          <% if (ld.presentationAt) { %><span class="badge tone-teal"><%- icon('calendar', 'ico-sm') %><%= fmt.dateTime(ld.presentationAt) %></span><% } %>
+          <% if (ld.assignedTo) { %><span class="badge tone-muted"><%= ld.assignedTo.name %></span><% } %>
+          <% if (ld.notes && ld.notes.length) { %><span class="badge tone-muted"><%- icon('message', 'ico-sm') %><%= ld.notes.length %></span><% } %>
+        </div>
+      </a>
+      <% }) %>
+      <% if (!col.items.length) { %><p class="rounded-2xl border-2 border-dashed border-line p-4 text-center text-xs text-muted">Pusto</p><% } %>
+    </div>
+  </section>
+  <% }) %>
+</div>
+<% } else { %>
+<div class="card mt-6 overflow-hidden"><div class="table-wrap"><table class="table">
+  <thead><tr><th>Klient</th><th>Kontakt</th><th>Oferta</th><th>Status</th><th>Opiekun</th><th>Prezentacja</th><th>Data</th></tr></thead>
+  <tbody><% leads.forEach(function(ld){ var st = P.LEAD_STATUS[ld.status]; %>
+    <tr><td><a href="/biuro-panel/zapytania/<%= ld._id %>" class="font-semibold hover:text-teal-600"><%= ld.name %></a></td><td class="text-sm"><%= ld.email %><br><span class="text-muted"><%= ld.phone %></span></td><td class="max-w-[240px] truncate text-sm"><%= ld.listing ? ld.listing.title : 'Strona biura' %></td><td><span class="badge tone-<%= st.tone %>"><%= st.label %></span></td><td class="text-sm"><%= ld.assignedTo ? ld.assignedTo.name : '–' %></td><td class="whitespace-nowrap text-sm"><%= ld.presentationAt ? fmt.dateTime(ld.presentationAt) : '–' %></td><td class="whitespace-nowrap text-sm text-muted"><%= fmt.dateShort(ld.createdAt) %></td></tr>
+  <% }) %><% if (!leads.length) { %><tr><td colspan="7" class="py-10 text-center text-muted">Brak zapytań.</td></tr><% } %></tbody>
+</table></div></div>
+<% } %>

@@ -1,0 +1,15 @@
+<div class="flex flex-wrap items-end justify-between gap-4"><h1 class="font-display text-3xl font-extrabold">Ogłoszenia – moderacja</h1>
+  <form method="get" class="flex flex-wrap gap-2"><select name="status" class="select !w-auto text-sm" data-autosubmit-field><option value="">Każdy status</option><% Object.keys(P.LISTING_STATUS).forEach(function(s){ %><option value="<%= s %>" <%= query.status === s ? 'selected' : '' %>><%= P.LISTING_STATUS[s].label %></option><% }) %></select><input name="q" class="input min-w-0 flex-1 text-sm sm:!w-56 sm:flex-none" placeholder="Tytuł lub nr oferty" value="<%= query.q || '' %>"><button class="btn btn-outline btn-sm"><%- icon('search', 'ico-sm') %></button></form></div>
+<div class="card mt-6 overflow-hidden"><div class="table-wrap"><table class="table">
+  <thead><tr><th>Oferta</th><th>Ogłoszeniodawca</th><th>Status</th><th>Dodano</th><th class="!text-right">Akcje</th></tr></thead>
+  <tbody><% listings.forEach(function(l){ %>
+    <tr><td class="max-w-[360px]"><a href="<%= l.url %>" target="_blank" class="block truncate font-semibold hover:text-teal-600"><%= l.title %></a><p class="text-xs text-muted">nr <%= l.num %> · <%= l.cityName %> · <%= fmt.price(l.price, l.transaction) %></p><% if (l.moderationNote) { %><p class="text-xs text-red-700"><%= l.moderationNote %></p><% } %></td>
+      <td class="text-sm"><%= l.agency ? l.agency.name : (l.owner ? l.owner.email : '–') %></td>
+      <td><%- include('../partials/status-badge', { s: l.status }) %></td>
+      <td class="whitespace-nowrap text-sm text-muted"><%= fmt.dateShort(l.createdAt) %></td>
+      <td><form method="post" action="/admin/ogloszenia/<%= l._id %>" class="flex justify-end gap-1"><input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button name="action" value="feature" class="btn btn-ghost btn-sm" title="Wyróżnij / zdejmij"><%- icon('star', 'ico-sm') %></button>
+        <% if (l.status === 'blocked') { %><button name="action" value="unblock" class="btn btn-ghost btn-sm">Odblokuj</button><% } else { %><input name="note" class="input !w-36 !py-1.5 text-xs" placeholder="Powód blokady"><button name="action" value="block" class="btn btn-ghost btn-sm text-orange-600">Blokuj</button><% } %>
+        <button name="action" value="delete" class="btn btn-ghost btn-sm text-red-600" data-confirm="Usunąć ogłoszenie?"><%- icon('trash', 'ico-sm') %></button></form></td></tr>
+  <% }) %><% if (!listings.length) { %><tr><td colspan="5" class="py-10 text-center text-muted">Brak ogłoszeń.</td></tr><% } %></tbody>
+</table></div></div>
