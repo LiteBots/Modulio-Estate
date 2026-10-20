@@ -1,6 +1,0 @@
-<%- include('../partials/auth-shell-start') %>
-  <span class="grid h-14 w-14 place-items-center rounded-2xl bg-teal-50 text-teal-600"><%- icon('users', 'ico-lg') %></span>
-  <h1 class="mt-5 font-display text-3xl font-extrabold">Zaproszenie do zespołu <%= agency.name %></h1>
-  <p class="mt-3 text-muted">Zaproszenie wysłano na adres <b class="text-navy-900"><%= inv.email %></b>. Zaloguj się lub załóż konto na ten adres, aby dołączyć do panelu biura jako <%= inv.role === 'manager' ? 'manager' : 'agent' %>.</p>
-  <div class="mt-8 grid gap-3 sm:grid-cols-2"><a href="/rejestracja" class="btn btn-accent btn-lg">Załóż konto</a><a href="/logowanie" class="btn btn-outline btn-lg">Mam konto – zaloguj</a></div>
-<%- include('../partials/auth-shell-end') %>
