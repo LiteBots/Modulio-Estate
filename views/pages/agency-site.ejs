@@ -1,0 +1,81 @@
+<% var c = a.brandColor || '#18325a'; var ms = a.microsite || {}; %>
+<div style="--brand: <%= c %>">
+<!-- MIKROSTRONA BIURA (dostępna w planie z opcją strony biura) -->
+<section class="relative overflow-hidden text-white" style="background: var(--brand)">
+  <% if (a.cover) { %><img src="<%= a.cover %>" alt="" class="absolute inset-0 h-full w-full object-cover opacity-40"><% } else { %><div class="mosaic-band absolute inset-0 opacity-25"><%- art.mosaic(24, 6, a.name.length * 3) %></div><% } %>
+  <div class="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent"></div>
+  <div class="wrap relative py-14 sm:py-20">
+    <nav class="mb-8 text-sm text-white/70"><a href="/" class="hover:text-white">ModulioEstate</a> / <a href="/biura" class="hover:text-white">Biura</a> / <span class="text-white"><%= a.name %></span></nav>
+    <div class="flex flex-col gap-6 md:flex-row md:items-center">
+      <span class="grid h-28 w-28 shrink-0 place-items-center overflow-hidden rounded-3xl bg-white font-display text-3xl font-bold shadow-lift" style="color: var(--brand)"><% if (a.logo) { %><img src="<%= a.logo %>" alt="<%= a.name %>" class="h-full w-full object-contain p-2"><% } else { %><%= a.name.slice(0,2).toUpperCase() %><% } %></span>
+      <div class="max-w-3xl">
+        <p class="text-sm font-semibold uppercase tracking-widest text-white/70"><%= city ? city.name : '' %> · biuro nieruchomości<%= a.verified ? ' · zweryfikowane' : '' %></p>
+        <h1 class="mt-2 font-display text-4xl font-extrabold text-white sm:text-5xl"><%= ms.headline || a.name %></h1>
+        <p class="mt-3 text-lg text-white/85"><%= ms.subheadline || a.shortDescription || '' %></p>
+        <div class="mt-6 flex flex-wrap gap-2">
+          <a href="#oferty" class="btn btn-white">Zobacz oferty</a>
+          <% if (ms.showContact !== false) { %><a href="#kontakt" class="btn border border-white/40 text-white hover:bg-white/10">Kontakt z biurem</a><% } %>
+          <% if (a.phone) { %><span class="btn border border-white/40 text-white"><%- icon('phone', 'ico-sm') %><span class="select-all"><%= a.phone %></span></span><% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<% if (ms.showStats !== false) { %>
+<section class="wrap -mt-8 relative grid grid-cols-2 gap-3 md:grid-cols-4">
+  <div class="kpi shadow-soft"><p class="text-sm text-muted">Na sprzedaż</p><p class="kpi-value"><%= counts.sale %></p></div>
+  <div class="kpi shadow-soft"><p class="text-sm text-muted">Do wynajęcia</p><p class="kpi-value"><%= counts.rent %></p></div>
+  <div class="kpi shadow-soft"><p class="text-sm text-muted">Zakończone transakcje</p><p class="kpi-value"><%= counts.sold %></p></div>
+  <div class="kpi shadow-soft"><p class="text-sm text-muted">Miejscowości</p><p class="kpi-value"><%= counts.cities.length %></p></div>
+</section>
+<% } %>
+
+<% if (ms.highlights && ms.highlights.length) { %>
+<section class="wrap pt-10">
+  <div class="flex flex-wrap gap-3"><% ms.highlights.forEach(function(h){ %><span class="flex items-center gap-2 rounded-full bg-white px-4 py-2 font-semibold ring-1 ring-line"><span class="grid h-6 w-6 place-items-center rounded-full text-white" style="background: var(--brand)"><%- icon('check', 'ico-sm') %></span><%= h %></span><% }) %></div>
+</section>
+<% } %>
+
+<section id="oferty" class="wrap py-12"><%- include('../partials/agency-listings') %></section>
+
+<section class="border-y border-line bg-white py-14">
+  <div class="wrap grid gap-10 lg:grid-cols-[1.3fr_1fr]">
+    <div><h2 class="font-display text-3xl font-extrabold">O nas</h2><div class="prose-me mt-4"><%- fmt.paragraphs(a.about || a.shortDescription || '') %></div>
+      <% if (a.licenseInfo) { %><p class="mt-4 flex gap-2 text-sm text-muted"><%- icon('shield', 'ico-sm mt-0.5') %><%= a.licenseInfo %></p><% } %></div>
+    <div class="grid content-start gap-3 text-sm">
+      <% if (a.address) { %><p class="flex gap-3"><%- icon('map-pin', 'ico text-teal-500') %><span><%= a.address %><br><%= city ? city.name : '' %></span></p><% } %>
+      <% if (a.openingHours) { %><p class="flex gap-3"><%- icon('clock', 'ico text-teal-500') %><%= a.openingHours %></p><% } %>
+      <% if (a.email) { %><p class="flex gap-3"><%- icon('mail', 'ico text-teal-500') %><span class="select-all"><%= a.email %></span></p><% } %>
+      <% if (a.website) { %><a href="<%= a.website %>" target="_blank" rel="noopener" class="flex gap-3 hover:text-teal-600"><%- icon('globe', 'ico text-teal-500') %><%= a.website.replace(/^https?:\/\//, '') %></a><% } %>
+      <div class="mt-2 flex gap-2"><% ['facebook','instagram','linkedin','youtube','tiktok'].forEach(function(s){ if (a.socials && a.socials[s]) { %><a href="<%= a.socials[s] %>" target="_blank" rel="noopener" class="grid h-10 w-10 place-items-center rounded-full text-white" style="background: var(--brand)" aria-label="<%= s %>"><%- icon(s, 'ico-sm') %></a><% } }) %></div>
+    </div>
+  </div>
+</section>
+
+<% if (ms.showTeam !== false && team.length) { %>
+<section class="wrap py-14">
+  <h2 class="font-display text-3xl font-extrabold">Nasz zespół</h2>
+  <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <% team.forEach(function(m){ var u = m.user; %>
+    <div class="card card-pad text-center">
+      <% if (u.avatar) { %><img src="<%= u.avatar %>" alt="<%= u.name %>" class="mx-auto h-24 w-24 rounded-full object-cover" referrerpolicy="no-referrer"><% } else { %><span class="mx-auto grid h-24 w-24 place-items-center rounded-full font-display text-2xl font-bold text-white" style="background: var(--brand)"><%= (u.name || u.email).split(' ').map(function(x){ return x[0]; }).slice(0,2).join('').toUpperCase() %></span><% } %>
+      <p class="mt-4 font-display text-lg font-bold"><%= u.name %></p>
+      <p class="text-sm text-muted"><%= m.title || (m.role === 'owner' ? 'Właściciel' : m.role === 'manager' ? 'Manager' : 'Agent nieruchomości') %></p>
+      <% if (m.bio) { %><p class="mt-3 text-sm text-navy-600"><%= m.bio %></p><% } %>
+      <% if (m.phone || u.phone) { %><p class="mt-3 text-sm font-semibold select-all"><%= m.phone || u.phone %></p><% } %>
+    </div>
+    <% }) %>
+  </div>
+</section>
+<% } %>
+
+<% if (ms.showContact !== false) { %>
+<section id="kontakt" class="wrap pb-16">
+  <div class="grid gap-8 rounded-[2rem] p-6 text-white sm:p-10 lg:grid-cols-[1fr_1.2fr]" style="background: var(--brand)">
+    <div><h2 class="font-display text-3xl font-extrabold text-white">Porozmawiajmy o Twojej nieruchomości</h2><p class="mt-3 text-white/80">Kupujesz, sprzedajesz albo szukasz najemcy? Zostaw wiadomość – odezwiemy się najszybciej, jak to możliwe.</p></div>
+    <div class="rounded-3xl bg-white p-5 text-navy-900"><%- include('../partials/agency-contact') %></div>
+  </div>
+</section>
+<% } %>
+</div>

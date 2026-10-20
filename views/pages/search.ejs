@@ -1,0 +1,150 @@
+<%
+  var page = f.strona;
+  var trLabel = transaction === 'wynajem' ? 'Wynajem' : 'Sprzedaż';
+  var priceSteps = transaction === 'wynajem' ? [1000,1500,2000,2500,3000,4000,5000,7000,10000] : [200000,300000,400000,500000,600000,800000,1000000,1500000,2000000,3000000];
+  var allItems = result.items;
+%>
+<section class="border-b border-line bg-white">
+  <div class="wrap pb-6 pt-6">
+    <%- include('../partials/breadcrumbs') %>
+    <div class="mt-4 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
+      <div class="min-w-0">
+        <h1 class="font-display text-3xl font-extrabold tracking-tight sm:text-4xl"><%= h.h1 %></h1>
+        <p class="mt-1.5 text-muted"><b class="text-navy-900 num"><%= fmt.num(result.total) %></b> <%= fmt.plural(result.total, 'oferta', 'oferty', 'ofert') %><%= f.q ? ' dla „' + f.q + '”' : '' %></p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <form method="post" action="/panel/wyszukiwania" class="contents">
+          <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="url" value="<%= saveUrl %>"><input type="hidden" name="name" value="<%= h.h1 %>">
+          <button class="btn btn-outline"><%- icon('bell', 'ico-sm') %>Zapisz i powiadamiaj</button>
+        </form>
+        <div class="flex rounded-full bg-paper p-1">
+          <a href="/sprzedaz/<%= typeSlug %><%= locationSlug ? '/' + locationSlug : '' %>" class="rounded-full px-4 py-1.5 text-sm font-semibold <%= transaction === 'sprzedaz' ? 'bg-white shadow-sm' : 'text-muted' %>">Sprzedaż</a>
+          <a href="/wynajem/<%= typeSlug %><%= locationSlug ? '/' + locationSlug : '' %>" class="rounded-full px-4 py-1.5 text-sm font-semibold <%= transaction === 'wynajem' ? 'bg-white shadow-sm' : 'text-muted' %>">Wynajem</a>
+        </div>
+      </div>
+    </div>
+    <div class="mt-5 flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
+      <a href="/<%= transaction %>/nieruchomosci<%= locationSlug ? '/' + locationSlug : '' %>" class="chip shrink-0 <%= typeSlug === 'nieruchomosci' ? 'chip-on' : '' %>">Wszystkie</a>
+      <% P.TYPES.forEach(function(t){ %><a href="/<%= transaction %>/<%= t.slug %><%= locationSlug ? '/' + locationSlug : '' %>" class="chip shrink-0 <%= typeSlug === t.slug ? 'chip-on' : '' %>"><%- icon(t.icon, 'ico-sm') %><%= t.plural %></a><% }) %>
+    </div>
+  </div>
+</section>
+
+<div class="wrap grid gap-8 py-8 lg:grid-cols-[300px_1fr]">
+  <!-- FILTRY -->
+  <aside class="min-w-0">
+    <button type="button" class="btn btn-outline mb-4 w-full lg:hidden" data-toggle="#filters" aria-expanded="false"><%- icon('filter', 'ico-sm') %>Filtry</button>
+    <form id="filters" method="get" action="/szukaj" class="card card-pad sticky top-24 hidden gap-5 lg:grid" data-filters>
+      <input type="hidden" name="transakcja" value="<%= transaction %>">
+      <div><label class="label" for="f-typ">Rodzaj</label>
+        <select id="f-typ" name="typ" class="select"><option value="">Wszystkie</option><% P.TYPES.forEach(function(t){ %><option value="<%= t.key %>" <%= f.type && f.type.key === t.key ? 'selected' : '' %>><%= t.plural %></option><% }) %></select></div>
+      <div><label class="label" for="f-lok">Lokalizacja</label>
+        <select id="f-lok" name="lokalizacja" class="select">
+          <option value="">Pomorskie i Zachodniopomorskie</option>
+          <option value="pomorskie" <%= locationSlug === 'pomorskie' ? 'selected' : '' %>>Całe pomorskie</option>
+          <option value="zachodniopomorskie" <%= locationSlug === 'zachodniopomorskie' ? 'selected' : '' %>>Całe zachodniopomorskie</option>
+          <option value="trojmiasto" <%= locationSlug === 'trojmiasto' ? 'selected' : '' %>>Trójmiasto</option>
+          <optgroup label="Pomorskie"><% LOC.CITIES.filter(function(c){ return c.voivodeship === 'pomorskie'; }).sort(function(a,b){ return a.name.localeCompare(b.name, 'pl'); }).forEach(function(c){ %><option value="<%= c.slug %>" <%= locationSlug === c.slug ? 'selected' : '' %>><%= c.name %></option><% }) %></optgroup>
+          <optgroup label="Zachodniopomorskie"><% LOC.CITIES.filter(function(c){ return c.voivodeship === 'zachodniopomorskie'; }).sort(function(a,b){ return a.name.localeCompare(b.name, 'pl'); }).forEach(function(c){ %><option value="<%= c.slug %>" <%= locationSlug === c.slug ? 'selected' : '' %>><%= c.name %></option><% }) %></optgroup>
+        </select></div>
+      <% if (f.location && f.location.districts && f.location.districts.length) { %>
+      <div><label class="label" for="f-dz">Dzielnica</label>
+        <select id="f-dz" name="dzielnica" class="select"><option value="">Wszystkie</option><% f.location.districts.forEach(function(d){ %><option <%= f.dzielnica === d ? 'selected' : '' %>><%= d %></option><% }) %></select></div>
+      <% } %>
+      <div><span class="label">Cena (zł)</span>
+        <div class="grid grid-cols-2 gap-2">
+          <input name="cena_od" inputmode="numeric" class="input num" placeholder="od" value="<%= f.cena_od !== null ? f.cena_od : '' %>">
+          <select name="cena_do" class="select num"><option value="">do</option><% priceSteps.forEach(function(v){ %><option value="<%= v %>" <%= f.cena_do === v ? 'selected' : '' %>><%= fmt.shortPrice(v) %></option><% }) %></select>
+        </div></div>
+      <div><span class="label">Powierzchnia (m²)</span>
+        <div class="grid grid-cols-2 gap-2"><input name="pow_od" inputmode="numeric" class="input num" placeholder="od" value="<%= f.pow_od !== null ? f.pow_od : '' %>"><input name="pow_do" inputmode="numeric" class="input num" placeholder="do" value="<%= f.pow_do !== null ? f.pow_do : '' %>"></div></div>
+      <div><span class="label">Liczba pokoi</span>
+        <div class="grid grid-cols-5 gap-1.5">
+          <% ['', '1','2','3','4'].forEach(function(v){ %><label class="cursor-pointer"><input type="radio" name="pokoje_od" value="<%= v %>" class="peer sr-only" <%= String(f.pokoje_od || '') === v ? 'checked' : '' %>><span class="block rounded-xl border border-line py-2 text-center text-sm font-semibold peer-checked:border-navy-800 peer-checked:bg-navy-800 peer-checked:text-white"><%= v ? v + '+' : 'Każda' %></span></label><% }) %>
+        </div></div>
+      <div><label class="label" for="f-ry">Rynek</label>
+        <select id="f-ry" name="rynek" class="select"><option value="">Pierwotny i wtórny</option><option value="pierwotny" <%= f.rynek === 'pierwotny' ? 'selected' : '' %>>Pierwotny</option><option value="wtorny" <%= f.rynek === 'wtorny' ? 'selected' : '' %>>Wtórny</option></select></div>
+      <details <%= f.cechy.length || f.rok_od || f.pietro_do !== null ? 'open' : '' %>>
+        <summary class="cursor-pointer text-sm font-semibold text-teal-600">Więcej filtrów</summary>
+        <div class="mt-4 grid gap-4">
+          <div class="grid grid-cols-2 gap-2">
+            <div><label class="label" for="f-rok">Rok budowy od</label><input id="f-rok" name="rok_od" inputmode="numeric" class="input" value="<%= f.rok_od || '' %>"></div>
+            <div><label class="label" for="f-pi">Piętro do</label><input id="f-pi" name="pietro_do" inputmode="numeric" class="input" value="<%= f.pietro_do !== null ? f.pietro_do : '' %>"></div>
+          </div>
+          <div class="grid gap-2">
+            <% P.FEATURES.slice(0, 14).forEach(function(ft){ %><label class="flex items-center gap-2.5 text-sm"><input type="checkbox" name="cechy" value="<%= ft[0] %>" class="check" <%= f.cechy.includes(ft[0]) ? 'checked' : '' %>><%= ft[1] %></label><% }) %>
+          </div>
+        </div>
+      </details>
+      <label class="flex items-center gap-2.5 text-sm"><input type="checkbox" name="bez_prowizji" value="1" class="check" <%= f.bez_prowizji ? 'checked' : '' %>>Tylko bez prowizji</label>
+      <label class="flex items-center gap-2.5 text-sm"><input type="checkbox" name="ze_zdjeciami" value="1" class="check" <%= f.ze_zdjeciami ? 'checked' : '' %>>Tylko ze zdjęciami</label>
+      <div><label class="label" for="f-q">Słowa kluczowe</label><input id="f-q" name="q" class="input" placeholder="np. balkon, Wrzeszcz" value="<%= f.q %>"></div>
+      <button class="btn btn-primary w-full"><%- icon('search', 'ico-sm') %>Pokaż oferty</button>
+      <a href="<%= basePath %>" class="text-center text-sm font-semibold text-muted hover:text-navy-900">Wyczyść filtry</a>
+    </form>
+  </aside>
+
+  <!-- WYNIKI -->
+  <div class="min-w-0">
+    <div class="mb-5"><%- include('../partials/ad-slot', { ad: adSlots.search_top, placement: 'search_top', shape: 'banner' }) %></div>
+
+    <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+      <p class="text-sm text-muted">Strona <%= page %> z <%= result.pages %></p>
+      <form method="get" action="<%= basePath %>" class="flex items-center gap-2" data-autosubmit>
+        <% Object.keys(query).forEach(function(k){ if (k !== 'sort' && k !== 'strona') { [].concat(query[k]).forEach(function(v){ %><input type="hidden" name="<%= k %>" value="<%= v %>"><% }) } }) %>
+        <label for="sort" class="text-sm text-muted">Sortuj:</label>
+        <select id="sort" name="sort" class="select !w-auto !rounded-full !py-2 text-sm font-semibold">
+          <option value="najnowsze" <%= f.sort === 'najnowsze' ? 'selected' : '' %>>Najnowsze</option>
+          <option value="cena_rosnaco" <%= f.sort === 'cena_rosnaco' ? 'selected' : '' %>>Cena rosnąco</option>
+          <option value="cena_malejaco" <%= f.sort === 'cena_malejaco' ? 'selected' : '' %>>Cena malejąco</option>
+          <option value="cena_m2" <%= f.sort === 'cena_m2' ? 'selected' : '' %>>Cena za m²</option>
+          <option value="powierzchnia" <%= f.sort === 'powierzchnia' ? 'selected' : '' %>>Największa powierzchnia</option>
+        </select>
+      </form>
+    </div>
+
+    <% if (result.featured.length) { %>
+    <div class="mb-6 rounded-[1.75rem] bg-sun-50 p-4 sm:p-5">
+      <p class="mb-3 flex items-center gap-2 text-sm font-bold text-sun-600"><%- icon('star', 'ico-sm') %>Oferty wyróżnione</p>
+      <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"><% result.featured.forEach(function(l){ %><%- include('../partials/listing-card', { l: l }) %><% }) %></div>
+    </div>
+    <% } %>
+
+    <% if (allItems.length) { %>
+    <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      <% allItems.forEach(function(l, i){ %>
+        <%- include('../partials/listing-card', { l: l }) %>
+        <% if (i === 5) { %><div><%- include('../partials/ad-slot', { ad: adSlots.search_inline, placement: 'search_inline', shape: 'tile' }) %></div><% } %>
+      <% }) %>
+    </div>
+    <%- include('../partials/pagination', { pages: result.pages, page: page, href: function(p){ return basePath + qs({ strona: p }); } }) %>
+    <% } else { %>
+    <div class="card flex flex-col items-center p-10 text-center">
+      <div class="mosaic-band h-20 w-28 overflow-hidden rounded-2xl"><%- art.mosaic(3, 2, 9) %></div>
+      <h2 class="mt-5 font-display text-2xl font-bold">Brak ofert dla tych kryteriów</h2>
+      <p class="mt-2 max-w-md text-muted">Zmień filtry albo zapisz wyszukiwanie – powiadomimy Cię, gdy pojawi się pasująca oferta.</p>
+      <div class="mt-6 flex flex-wrap justify-center gap-2"><a href="/<%= transaction %>" class="btn btn-outline">Wszystkie oferty</a><a href="/<%= transaction %>/<%= typeSlug %>/<%= f.location ? (f.location.voivodeship || f.location.slug) : 'pomorskie' %>" class="btn btn-primary">Szukaj w całym województwie</a></div>
+    </div>
+    <% } %>
+
+    <% if (intro) { %>
+    <section class="card card-pad mt-12">
+      <h2 class="font-display text-xl font-bold"><%= h.h1 %> – informacje</h2>
+      <p class="mt-3 leading-relaxed text-muted"><%= intro %></p>
+      <% if (coastalNote) { %><p class="mt-3 flex gap-2 rounded-2xl bg-teal-50 p-3 text-sm text-teal-800"><%- icon('info', 'ico-sm mt-0.5') %><%= coastalNote %></p><% } %>
+      <% if (f.location && f.location.districts && f.location.districts.length) { %>
+      <p class="mt-5 text-sm font-semibold">Dzielnice</p>
+      <div class="mt-2 flex flex-wrap gap-2"><% f.location.districts.forEach(function(d){ %><a href="<%= basePath %>?dzielnica=<%= encodeURIComponent(d) %>" class="chip"><%= d %></a><% }) %></div>
+      <% } %>
+    </section>
+    <% } %>
+
+    <section class="mt-10">
+      <h2 class="font-display text-lg font-bold"><%= (f.type || P.ALL_TYPE)[transaction === 'wynajem' ? 'rent' : 'sale'] %> w innych miejscowościach</h2>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <% cityLinks.forEach(function(c){ %><a href="/<%= transaction %>/<%= typeSlug %>/<%= c.slug %>" class="chip"><%= c.name %><% if (c.km) { %><span class="text-xs text-muted"><%= c.km %> km</span><% } %></a><% }) %>
+        <a href="/miasta" class="chip">Wszystkie miejscowości</a>
+      </div>
+    </section>
+  </div>
+</div>

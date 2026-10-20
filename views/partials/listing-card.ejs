@@ -1,0 +1,43 @@
+<%
+  var t = P.TYPE_BY_KEY[l.type] || {};
+  var img = l.images && l.images[0] ? l.images[0].url : null;
+  var fav = favIds.has(String(l._id));
+  var isNew = l.publishedAt && (Date.now() - new Date(l.publishedAt).getTime()) < 3 * 864e5;
+%>
+<article class="group relative flex flex-col overflow-hidden rounded-[1.75rem] border border-line bg-white transition duration-300 hover:-translate-y-1 hover:border-navy-200 hover:shadow-lift">
+  <a href="<%= l.url %>" class="relative block aspect-[4/3] overflow-hidden scene" tabindex="-1" aria-hidden="true">
+    <% if (img) { %><img src="<%= img %>" alt="<%= l.title %>" loading="lazy" class="h-full w-full object-cover transition duration-700 group-hover:scale-105"><% } else { %><div class="h-full w-full transition duration-700 group-hover:scale-105"><%- art.sceneFor(l) %></div><% } %>
+    <span class="absolute inset-0 bg-gradient-to-t from-navy-950/55 via-transparent to-transparent"></span>
+  </a>
+  <div class="pointer-events-none absolute left-3 top-3 z-[1] flex flex-wrap gap-1.5 pr-14">
+    <span class="badge bg-navy-900/85 uppercase tracking-wider text-white backdrop-blur"><%= l.transaction === 'wynajem' ? 'Wynajem' : 'Sprzedaż' %></span>
+    <% if (l.isFeatured) { %><span class="badge bg-sun-400 text-navy-900"><%- icon('star', 'ico-sm') %>Wyróżnione</span><% } %>
+    <% if (isNew) { %><span class="badge bg-teal-500 text-white">Nowe</span><% } %>
+    <% if (l.market === 'pierwotny') { %><span class="badge bg-white text-navy-800">Rynek pierwotny</span><% } %>
+    <% if (l.noCommission) { %><span class="badge bg-orange-500 text-white">Bez prowizji</span><% } %>
+    <% if (l.status === 'reserved') { %><span class="badge bg-white text-orange-700">Rezerwacja</span><% } %>
+  </div>
+  <button type="button" data-fav="<%= l._id %>" aria-pressed="<%= fav %>" aria-label="<%= fav ? 'Usuń z ulubionych' : 'Dodaj do ulubionych' %>" class="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full backdrop-blur transition <%= fav ? 'bg-white text-orange-500' : 'bg-white/30 text-white hover:bg-white hover:text-orange-500' %>">
+    <%- icon('heart', 'ico', fav ? 'fill="currentColor"' : '') %>
+  </button>
+  <div class="flex flex-1 flex-col p-4 sm:p-5">
+    <div class="flex items-baseline justify-between gap-3">
+      <p class="font-display text-[1.35rem] font-extrabold leading-none num"><%= fmt.price(l.price, l.transaction) %></p>
+      <% if (l.pricePerM2 && l.transaction === 'sprzedaz') { %><p class="text-xs text-muted num"><%= fmt.num(l.pricePerM2) %> zł/m²</p><% } %>
+    </div>
+    <h3 class="mt-2.5 line-clamp-2 font-sans text-[15px] font-semibold leading-snug text-navy-900"><a href="<%= l.url %>" class="after:absolute after:inset-0 after:content-[''] group-hover:text-teal-600"><%= l.title %></a></h3>
+    <p class="mt-1 flex items-center gap-1.5 text-sm text-muted"><%- icon('map-pin', 'ico-sm shrink-0') %><span class="truncate"><%= l.cityName %><%= l.district ? ', ' + l.district : '' %></span></p>
+    <div class="mt-4 flex flex-wrap gap-1.5 text-[13px] text-navy-600 num">
+      <% if (l.area) { %><span class="flex items-center gap-1 rounded-lg bg-paper px-2 py-1"><%- icon('ruler', 'ico-sm') %><%= fmt.num(l.area, l.area % 1 ? 1 : 0) %> m²</span><% } %>
+      <% if (l.rooms) { %><span class="flex items-center gap-1 rounded-lg bg-paper px-2 py-1"><%- icon('door', 'ico-sm') %><%= l.rooms %> pok.</span><% } %>
+      <% if (l.floor !== undefined && l.floor !== null && (l.type === 'mieszkanie' || l.type === 'biuro')) { %><span class="flex items-center gap-1 rounded-lg bg-paper px-2 py-1"><%- icon('layers', 'ico-sm') %><%= l.floor === 0 ? 'parter' : l.floor + ' p.' %></span><% } %>
+      <% if (l.plotArea && l.type === 'dom') { %><span class="flex items-center gap-1 rounded-lg bg-paper px-2 py-1"><%- icon('trees', 'ico-sm') %>dz. <%= fmt.num(l.plotArea) %> m²</span><% } %>
+    </div>
+    <div class="mt-auto flex items-center justify-between gap-2 border-t border-line/70 pt-3.5 text-xs text-muted" style="margin-top:1rem">
+      <span class="flex min-w-0 items-center gap-1.5 truncate">
+        <% if (l.agency && l.agency.name) { %><%- icon('briefcase', 'ico-sm shrink-0') %><span class="truncate"><%= l.agency.name %></span><% } else { %><%- icon('user', 'ico-sm shrink-0') %>Oferta prywatna<% } %>
+      </span>
+      <span class="shrink-0"><%= fmt.timeAgo(l.bumpedAt || l.publishedAt || l.createdAt) %></span>
+    </div>
+  </div>
+</article>

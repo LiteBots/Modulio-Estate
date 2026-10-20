@@ -1,0 +1,41 @@
+<h1 class="font-display text-3xl font-extrabold">Ustawienia konta</h1>
+<div class="mt-6 grid gap-6 xl:grid-cols-2">
+  <form method="post" action="/panel/ustawienia/profil" enctype="multipart/form-data" class="card card-pad grid gap-4">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <h2 class="font-display text-lg font-bold">Profil</h2>
+    <div class="flex items-center gap-4">
+      <% if (user.avatar) { %><img src="<%= user.avatar %>" alt="" class="h-16 w-16 rounded-full object-cover" referrerpolicy="no-referrer"><% } else { %><span class="grid h-16 w-16 place-items-center rounded-full bg-teal-500 font-bold text-white"><%= user.initials %></span><% } %>
+      <label class="btn btn-outline btn-sm cursor-pointer"><%- icon('image', 'ico-sm') %>Zmień zdjęcie<input type="file" name="avatar" accept="image/*" class="sr-only"></label>
+    </div>
+    <div><label class="label" for="st-name">Imię i nazwisko</label><input id="st-name" name="name" class="input" value="<%= user.name || '' %>"></div>
+    <div><label class="label" for="st-email">E-mail</label><input id="st-email" class="input bg-paper" value="<%= user.email %>" disabled></div>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div><label class="label" for="st-phone">Telefon</label><input id="st-phone" name="phone" class="input" value="<%= user.phone || '' %>"></div>
+      <div><label class="label" for="st-city">Miejscowość</label><select id="st-city" name="city" class="select"><option value="">–</option><% LOC.CITIES.slice().sort(function(a,b){ return a.name.localeCompare(b.name, 'pl'); }).forEach(function(c){ %><option value="<%= c.slug %>" <%= user.city === c.slug ? 'selected' : '' %>><%= c.name %></option><% }) %></select></div>
+    </div>
+    <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="notifyEmail" class="check" <%= user.notifyEmail ? 'checked' : '' %>>Powiadomienia e-mail o wiadomościach i nowych ofertach</label>
+    <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="marketingConsent" class="check" <%= user.marketingConsent ? 'checked' : '' %>>Informacje o nowościach w serwisie</label>
+    <button class="btn btn-primary w-fit">Zapisz profil</button>
+  </form>
+  <div class="grid content-start gap-6">
+    <form id="haslo" method="post" action="/panel/ustawienia/haslo" class="card card-pad grid gap-4">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <h2 class="font-display text-lg font-bold"><%= user.passwordHash ? 'Zmień hasło' : 'Ustaw hasło' %></h2>
+      <% if (!user.passwordHash) { %><p class="text-sm text-muted">Logujesz się przez Google. Możesz dodatkowo ustawić hasło do logowania e-mailem.</p><% } else { %><div><label class="label" for="pw-cur">Obecne hasło</label><input id="pw-cur" name="current" type="password" autocomplete="current-password" class="input"></div><% } %>
+      <div class="grid gap-4 sm:grid-cols-2"><div><label class="label" for="pw-new">Nowe hasło</label><input id="pw-new" name="password" type="password" autocomplete="new-password" minlength="8" class="input"></div><div><label class="label" for="pw-new2">Powtórz</label><input id="pw-new2" name="password2" type="password" autocomplete="new-password" class="input"></div></div>
+      <button class="btn btn-outline w-fit">Zapisz hasło</button>
+    </form>
+    <div class="card card-pad">
+      <h2 class="font-display text-lg font-bold">Twoje dane (RODO)</h2>
+      <p class="mt-2 text-sm text-muted">Pobierz kopię danych zapisanych na Twoim koncie w formacie JSON.</p>
+      <a href="/panel/ustawienia/eksport" class="btn btn-outline btn-sm mt-4"><%- icon('download', 'ico-sm') %>Pobierz moje dane</a>
+    </div>
+    <form id="usun" method="post" action="/panel/ustawienia/usun-konto" class="card card-pad grid gap-3 border-red-200">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <h2 class="font-display text-lg font-bold text-red-700">Usuń konto</h2>
+      <p class="text-sm text-muted">Usuniemy konto, ogłoszenia prywatne, ulubione i zapisane wyszukiwania. Tej operacji nie można cofnąć.</p>
+      <label class="label" for="del-confirm">Wpisz USUŃ, aby potwierdzić</label><input id="del-confirm" name="confirm" class="input" autocomplete="off">
+      <button class="btn btn-danger w-fit">Usuń konto na stałe</button>
+    </form>
+  </div>
+</div>

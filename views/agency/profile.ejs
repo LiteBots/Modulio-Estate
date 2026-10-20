@@ -1,0 +1,42 @@
+<% var a = agency; %>
+<h1 class="font-display text-3xl font-extrabold">Profil biura</h1>
+<p class="mt-1 text-muted">Te dane widzą klienci na stronie biura i przy każdej ofercie.</p>
+<form method="post" action="/biuro-panel/profil" enctype="multipart/form-data" class="mt-6 grid gap-6 xl:grid-cols-[1fr_340px]">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="grid content-start gap-6">
+    <section class="card card-pad grid gap-4">
+      <div><label class="label" for="ap-name">Nazwa biura</label><input id="ap-name" name="name" required class="input" value="<%= a.name %>"></div>
+      <div><label class="label" for="ap-short">Krótki opis (do 240 znaków)</label><input id="ap-short" name="shortDescription" maxlength="240" class="input" value="<%= a.shortDescription || '' %>"></div>
+      <div><label class="label" for="ap-about">O biurze</label><textarea id="ap-about" name="about" class="textarea !min-h-[200px]"><%= a.about || '' %></textarea></div>
+    </section>
+    <section class="card card-pad grid gap-4 sm:grid-cols-2">
+      <div><label class="label" for="ap-city">Siedziba</label><select id="ap-city" name="city" class="select"><% LOC.CITIES.slice().sort(function(x,y){ return x.name.localeCompare(y.name, 'pl'); }).forEach(function(c){ %><option value="<%= c.slug %>" <%= a.city === c.slug ? 'selected' : '' %>><%= c.name %></option><% }) %></select></div>
+      <div><label class="label" for="ap-addr">Adres</label><input id="ap-addr" name="address" class="input" value="<%= a.address || '' %>"></div>
+      <div><label class="label" for="ap-phone">Telefon</label><input id="ap-phone" name="phone" class="input" value="<%= a.phone || '' %>"></div>
+      <div><label class="label" for="ap-email">E-mail do zapytań</label><input id="ap-email" name="email" type="email" class="input" value="<%= a.email || '' %>"></div>
+      <div><label class="label" for="ap-www">Strona www</label><input id="ap-www" name="website" type="url" class="input" value="<%= a.website || '' %>" placeholder="https://"></div>
+      <div><label class="label" for="ap-nip">NIP</label><input id="ap-nip" name="nip" class="input" value="<%= a.nip || '' %>"></div>
+      <div><label class="label" for="ap-hours">Godziny otwarcia</label><input id="ap-hours" name="openingHours" class="input" value="<%= a.openingHours || '' %>" placeholder="pon.–pt. 9–17"></div>
+      <div><label class="label" for="ap-lic">Ubezpieczenie OC / informacje</label><input id="ap-lic" name="licenseInfo" class="input" value="<%= a.licenseInfo || '' %>"></div>
+      <div class="sm:col-span-2"><label class="label" for="ap-areas">Obsługiwane miejscowości</label>
+        <select id="ap-areas" name="serviceAreas" multiple size="8" class="select"><% LOC.CITIES.slice().sort(function(x,y){ return x.name.localeCompare(y.name, 'pl'); }).forEach(function(c){ %><option value="<%= c.slug %>" <%= (a.serviceAreas || []).includes(c.slug) ? 'selected' : '' %>><%= c.name %></option><% }) %></select>
+        <p class="hint">Przytrzymaj Ctrl (Cmd na Macu), aby zaznaczyć kilka. Biuro pojawi się na stronach tych miast.</p></div>
+    </section>
+    <section class="card card-pad grid gap-4 sm:grid-cols-2">
+      <% ['facebook','instagram','linkedin','youtube','tiktok'].forEach(function(s){ %><div><label class="label" for="ap-<%= s %>"><%= s.charAt(0).toUpperCase() + s.slice(1) %></label><input id="ap-<%= s %>" name="<%= s %>" type="url" class="input" value="<%= (a.socials && a.socials[s]) || '' %>" placeholder="https://"></div><% }) %>
+    </section>
+  </div>
+  <aside class="grid content-start gap-6">
+    <section class="card card-pad grid gap-4">
+      <p class="font-display text-lg font-bold">Logo</p>
+      <span class="grid h-24 w-24 place-items-center overflow-hidden rounded-2xl bg-paper"><% if (a.logo) { %><img src="<%= a.logo %>" alt="" class="h-full w-full object-contain p-2"><% } else { %><%- icon('image', 'ico-lg text-muted') %><% } %></span>
+      <input type="file" name="logo" accept="image/*" class="text-sm">
+      <p class="font-display text-lg font-bold">Zdjęcie w tle strony</p>
+      <% if (a.cover) { %><img src="<%= a.cover %>" alt="" class="aspect-[16/7] w-full rounded-2xl object-cover"><label class="flex items-center gap-2 text-sm"><input type="checkbox" name="removeCover" class="check">Usuń zdjęcie</label><% } %>
+      <input type="file" name="cover" accept="image/*" class="text-sm">
+      <div><label class="label" for="ap-color">Kolor marki</label><input id="ap-color" name="brandColor" type="color" class="h-12 w-full cursor-pointer rounded-2xl border border-line bg-white p-1" value="<%= a.brandColor || '#18325a' %>"></div>
+    </section>
+    <button class="btn btn-primary btn-lg">Zapisz profil</button>
+    <a href="/biuro/<%= a.slug %>" target="_blank" class="btn btn-outline"><%- icon('external', 'ico-sm') %>Zobacz stronę biura</a>
+  </aside>
+</form>

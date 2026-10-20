@@ -1,0 +1,11 @@
+<% seo.robots = "noindex,follow"; seo.fullTitle = (code === 404 ? "Nie znaleziono strony" : "Błąd") + " | " + site.name; %>
+<section class="wrap flex flex-col items-center py-24 text-center">
+  <div class="mosaic-band h-28 w-40 overflow-hidden rounded-3xl shadow-lift"><%- art.mosaic(4, 3, code) %></div>
+  <p class="mt-8 font-display text-7xl font-extrabold text-navy-100"><%= code %></p>
+  <h1 class="mt-2 font-display text-3xl font-extrabold"><%= code === 404 ? 'Nie ma takiej strony' : code === 403 ? 'Brak dostępu' : 'Wystąpił błąd' %></h1>
+  <p class="mt-3 max-w-lg text-muted"><%= message %></p>
+  <div class="mt-8 flex flex-wrap justify-center gap-3">
+    <a href="/" class="btn btn-primary">Strona główna</a>
+    <% if (typeof cta !== 'undefined' && cta) { %><a href="<%= cta.href %>" class="btn btn-accent"><%= cta.label %></a><% } else { %><a href="/sprzedaz" class="btn btn-outline">Przeglądaj oferty</a><% } %>
+  </div>
+</section>

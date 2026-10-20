@@ -1,0 +1,14 @@
+<%- include('../partials/auth-shell-start') %>
+  <h1 class="font-display text-3xl font-extrabold">Zaloguj się</h1>
+  <p class="mt-2 text-muted">Nie masz konta? <a href="/rejestracja" class="font-semibold text-teal-600">Załóż je za darmo</a></p>
+  <div class="mt-8"><%- include('../partials/google-btn') %></div>
+  <form method="post" action="/logowanie" class="grid gap-4 <%= googleEnabled ? '' : 'mt-8' %>">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div><label class="label" for="email">E-mail</label><input id="email" name="email" type="email" autocomplete="email" required class="input" value="<%= email %>"></div>
+    <div><div class="flex items-center justify-between"><label class="label" for="password">Hasło</label><a href="/zapomnialem-hasla" class="mb-1.5 text-sm font-semibold text-teal-600">Nie pamiętasz hasła?</a></div>
+      <div class="relative"><input id="password" name="password" type="password" autocomplete="current-password" required class="input pr-12"><button type="button" data-reveal="#password" class="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-muted hover:bg-paper" aria-label="Pokaż hasło"><%- icon('eye', 'ico-sm') %></button></div></div>
+    <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="remember" value="1" class="check">Zapamiętaj mnie na 30 dni</label>
+    <button class="btn btn-primary btn-lg w-full">Zaloguj się</button>
+  </form>
+  <p class="mt-8 rounded-2xl bg-paper p-4 text-sm text-muted">Prowadzisz biuro nieruchomości? Konta biur aktywujemy po kontakcie – <a href="/zostan-partnerem" class="font-semibold text-teal-600">zostań partnerem</a>.</p>
+<%- include('../partials/auth-shell-end') %>

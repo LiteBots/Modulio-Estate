@@ -1,0 +1,23 @@
+<section class="wrap py-8">
+  <%- include('../partials/breadcrumbs') %>
+  <h1 class="mt-4 font-display text-4xl font-extrabold tracking-tight">Miasta i miejscowości</h1>
+  <p class="mt-2 max-w-2xl text-muted">Ogłoszenia nieruchomości z <%= LOC.CITIES.length %> miejscowości województwa pomorskiego i zachodniopomorskiego. Wybierz lokalizację, aby zobaczyć oferty, średnie ceny i lokalne biura.</p>
+  <div class="mt-6 flex flex-wrap gap-2"><a href="/miasto/trojmiasto" class="btn btn-primary">Trójmiasto</a><a href="/wojewodztwo/pomorskie" class="btn btn-outline">Województwo pomorskie</a><a href="/wojewodztwo/zachodniopomorskie" class="btn btn-outline">Województwo zachodniopomorskie</a></div>
+</section>
+<section class="wrap grid gap-6 pb-16 lg:grid-cols-2">
+  <% [['pomorskie','Pomorskie'],['zachodniopomorskie','Zachodniopomorskie']].forEach(function(v){ var list = LOC.CITIES.filter(function(c){ return c.voivodeship === v[0]; }).sort(function(a,b){ return a.name.localeCompare(b.name, 'pl'); }); %>
+  <div class="card card-pad">
+    <div class="flex items-center justify-between"><h2 class="font-display text-2xl font-bold">Województwo <%= v[1].toLowerCase() %></h2><span class="badge tone-info num"><%= list.length %></span></div>
+    <p class="mt-6 eyebrow">Najważniejsze miasta</p>
+    <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+      <% list.filter(function(c){ return c.major; }).forEach(function(c){ %>
+      <a href="/miasto/<%= c.slug %>" class="flex items-center justify-between rounded-2xl bg-paper px-3.5 py-2.5 font-semibold hover:bg-navy-50"><span class="truncate"><%= c.name %></span><span class="text-xs text-muted num"><%= (byCity[c.slug]||{}).count || 0 %></span></a>
+      <% }) %>
+    </div>
+    <p class="mt-6 eyebrow">Pozostałe miejscowości</p>
+    <div class="mt-3 columns-2 gap-4 text-sm sm:columns-3">
+      <% list.filter(function(c){ return !c.major; }).forEach(function(c){ %><a href="/miasto/<%= c.slug %>" class="block py-1 text-navy-600 hover:text-teal-600"><%= c.name %><% if ((byCity[c.slug]||{}).count) { %> <span class="text-muted num">(<%= byCity[c.slug].count %>)</span><% } %></a><% }) %>
+    </div>
+  </div>
+  <% }) %>
+</section>
