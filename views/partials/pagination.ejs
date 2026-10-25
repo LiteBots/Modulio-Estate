@@ -1,9 +1,0 @@
-<% if (pages > 1) { var from = Math.max(1, page - 2), to = Math.min(pages, page + 2); %>
-<nav class="mt-10 flex flex-wrap items-center justify-center gap-1.5" aria-label="Strony wyników">
-  <% if (page > 1) { %><a href="<%= href(page - 1) %>" class="btn btn-outline btn-sm" rel="prev"><%- icon('chevron-left', 'ico-sm') %>Poprzednia</a><% } %>
-  <% if (from > 1) { %><a href="<%= href(1) %>" class="btn btn-ghost btn-sm">1</a><% if (from > 2) { %><span class="px-1 text-muted">…</span><% } %><% } %>
-  <% for (var p = from; p <= to; p++) { %><a href="<%= href(p) %>" class="btn btn-sm <%= p === page ? 'btn-primary' : 'btn-ghost' %>" <%- p === page ? 'aria-current="page"' : '' %>><%= p %></a><% } %>
-  <% if (to < pages) { %><% if (to < pages - 1) { %><span class="px-1 text-muted">…</span><% } %><a href="<%= href(pages) %>" class="btn btn-ghost btn-sm"><%= pages %></a><% } %>
-  <% if (page < pages) { %><a href="<%= href(page + 1) %>" class="btn btn-outline btn-sm" rel="next">Następna<%- icon('chevron-right', 'ico-sm') %></a><% } %>
-</nav>
-<% } %>
