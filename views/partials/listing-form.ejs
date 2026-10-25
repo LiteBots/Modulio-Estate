@@ -1,0 +1,130 @@
+<%
+  var v = function(k){ return l[k] === undefined || l[k] === null ? '' : l[k]; };
+  var feats = (l.features || []).map(String);
+  var isAgency = mode === 'agency';
+  var allDistricts = {}; LOC.CITIES.forEach(function(c){ if (c.districts.length) allDistricts[c.slug] = c.districts; });
+  var hasExtra = !!(l.rentExtra || l.yearBuilt || l.condition || l.heating || l.ownership || l.buildingType || feats.length || l.videoUrl || l.market === 'pierwotny');
+  var step = function(n, title, hint){ return '<div class="mb-4"><p class="text-xs font-semibold uppercase tracking-wider text-teal-600">Krok ' + n + '</p><h3 class="font-display text-lg font-bold">' + title + '</h3>' + (hint ? '<p class="text-sm text-muted">' + hint + '</p>' : '') + '</div>'; };
+%>
+<form method="post" action="<%= action %>" enctype="multipart/form-data" class="grid gap-5" data-listing-form data-districts='<%- JSON.stringify(allDistricts).replace(/'/g, "&#39;") %>'>
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <% if (errors && errors.length) { %>
+  <div class="alert alert-error"><%- icon('alert', 'ico mt-px') %><div><p class="font-semibold">Popraw formularz:</p><ul class="mt-1 list-disc pl-5"><% errors.forEach(function(e){ %><li><%= e %></li><% }) %></ul></div></div>
+  <% } %>
+
+  <section class="rounded-xl border border-line p-5 sm:p-6">
+    <%- step(1, 'Co chcesz ogłosić?') %>
+    <div class="grid grid-cols-2 gap-2 sm:max-w-sm">
+      <% [['sprzedaz','Sprzedaż'],['wynajem','Wynajem']].forEach(function(o){ %><label class="cursor-pointer"><input type="radio" name="transaction" value="<%= o[0] %>" class="peer sr-only" <%= v('transaction') === o[0] ? 'checked' : '' %> data-tr><span class="block rounded-lg border border-line py-2.5 text-center font-semibold peer-checked:border-navy-800 peer-checked:bg-navy-800 peer-checked:text-white"><%= o[1] %></span></label><% }) %>
+    </div>
+    <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <% P.TYPES.forEach(function(t){ %><label class="cursor-pointer"><input type="radio" name="type" value="<%= t.key %>" class="peer sr-only" <%= v('type') === t.key ? 'checked' : '' %> data-type><span class="flex items-center gap-2 rounded-lg border border-line px-3 py-2.5 text-sm font-medium peer-checked:border-navy-800 peer-checked:ring-1 peer-checked:ring-navy-800"><%- icon(t.icon, 'ico-sm text-teal-600') %><%= t.label %></span></label><% }) %>
+    </div>
+  </section>
+
+  <section class="rounded-xl border border-line p-5 sm:p-6">
+    <%- step(2, 'Gdzie znajduje się nieruchomość?', 'Obsługujemy województwo pomorskie i zachodniopomorskie.') %>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <label class="block"><span class="label">Miejscowość *</span>
+        <select name="city" required class="select" data-city>
+          <option value="">Wybierz…</option>
+          <optgroup label="Pomorskie"><% LOC.CITIES.filter(function(c){ return c.voivodeship === 'pomorskie'; }).sort(function(a,b){ return a.name.localeCompare(b.name, 'pl'); }).forEach(function(c){ %><option value="<%= c.slug %>" <%= v('city') === c.slug ? 'selected' : '' %>><%= c.name %></option><% }) %></optgroup>
+          <optgroup label="Zachodniopomorskie"><% LOC.CITIES.filter(function(c){ return c.voivodeship === 'zachodniopomorskie'; }).sort(function(a,b){ return a.name.localeCompare(b.name, 'pl'); }).forEach(function(c){ %><option value="<%= c.slug %>" <%= v('city') === c.slug ? 'selected' : '' %>><%= c.name %></option><% }) %></optgroup>
+        </select>
+        <span class="hint">Wieś spoza listy? Wybierz najbliższe miasto i wpisz wieś obok.</span></label>
+      <label class="block"><span class="label">Dzielnica, osiedle lub wieś</span><input name="district" list="districtList" class="input" value="<%= v('district') %>"><datalist id="districtList"></datalist></label>
+      <label class="block"><span class="label">Ulica</span><input name="street" class="input" value="<%= v('street') %>"></label>
+      <label class="flex items-center gap-2 self-end pb-3 text-sm"><input type="checkbox" name="showExactAddress" class="check" <%= l.showExactAddress ? 'checked' : '' %>>Pokaż ulicę w ogłoszeniu</label>
+    </div>
+  </section>
+
+  <section class="rounded-xl border border-line p-5 sm:p-6">
+    <%- step(3, 'Cena i powierzchnia') %>
+    <div class="grid gap-4 sm:grid-cols-4">
+      <label class="block sm:col-span-2"><span class="label"><span data-price-label>Cena (zł)</span> *</span><input name="price" required inputmode="numeric" class="input num" value="<%= v('price') %>"></label>
+      <label class="block sm:col-span-2"><span class="label">Powierzchnia (m²) *</span><input name="area" inputmode="decimal" class="input num" value="<%= v('area') %>"></label>
+      <label class="block" data-hide-for="dzialka,garaz,magazyn"><span class="label">Liczba pokoi</span><input name="rooms" inputmode="numeric" class="input num" value="<%= v('rooms') %>"></label>
+      <label class="block" data-hide-for="dzialka,dom,garaz"><span class="label">Piętro (0 = parter)</span><input name="floor" inputmode="numeric" class="input num" value="<%= v('floor') %>"></label>
+      <label class="block" data-show-for="dom,dzialka,magazyn"><span class="label">Działka (m²)</span><input name="plotArea" inputmode="numeric" class="input num" value="<%= v('plotArea') %>"></label>
+      <label class="block" data-rent-only><span class="label">Kaucja (zł)</span><input name="deposit" inputmode="numeric" class="input num" value="<%= v('deposit') %>"></label>
+    </div>
+    <div class="mt-4 flex flex-wrap gap-5 text-sm">
+      <label class="flex items-center gap-2"><input type="checkbox" name="negotiable" class="check" <%= l.negotiable ? 'checked' : '' %>>Do negocjacji</label>
+      <label class="flex items-center gap-2"><input type="checkbox" name="noCommission" class="check" <%= l.noCommission || (!isAgency && isNew) ? 'checked' : '' %>>Bez prowizji</label>
+    </div>
+  </section>
+
+  <section class="rounded-xl border border-line p-5 sm:p-6">
+    <%- step(4, 'Zdjęcia', 'Ogłoszenia ze zdjęciami dostają znacznie więcej wiadomości. Pierwsze zdjęcie będzie główne.') %>
+    <% if (l.images && l.images.length) { %>
+    <div class="mb-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
+      <% l.images.forEach(function(im, i){ %>
+      <div class="overflow-hidden rounded-lg border border-line">
+        <img src="<%= im.url %>" alt="" class="aspect-[4/3] w-full object-cover">
+        <div class="grid gap-0.5 p-1.5 text-xs">
+          <label class="flex items-center gap-1.5"><input type="checkbox" name="keepImages" value="<%= im.url %>" checked class="check">Zostaw</label>
+          <label class="flex items-center gap-1.5"><input type="radio" name="cover" value="<%= im.url %>" <%= i === 0 ? 'checked' : '' %>>Główne</label>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+    <% } %>
+    <label class="flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-line px-6 py-8 text-center hover:border-teal-400 hover:bg-teal-50" data-dropzone>
+      <%- icon('upload', 'ico-lg text-teal-600') %>
+      <span class="font-semibold">Wybierz zdjęcia</span>
+      <span class="text-sm text-muted">JPG, PNG lub WEBP, do 10 MB każde</span>
+      <input type="file" name="images" accept="image/jpeg,image/png,image/webp,image/avif" multiple class="sr-only" data-file-input>
+    </label>
+    <div class="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6" data-file-preview></div>
+  </section>
+
+  <section class="rounded-xl border border-line p-5 sm:p-6">
+    <%- step(5, 'Tytuł i opis') %>
+    <label class="block"><span class="label">Tytuł *</span><input name="title" required maxlength="140" class="input" value="<%= v('title') %>" placeholder="np. 3 pokoje z balkonem blisko plaży" data-count="140"><span class="hint" data-count-out></span></label>
+    <label class="mt-4 block"><span class="label">Opis *</span><textarea name="description" required class="textarea !min-h-[180px]" maxlength="12000" placeholder="Opisz mieszkanie, okolicę i koszty utrzymania (min. 40 znaków)."><%= v('description') %></textarea></label>
+  </section>
+
+  <section class="rounded-xl border border-line p-5 sm:p-6">
+    <%- step(6, 'Dane kontaktowe') %>
+    <div class="grid gap-4 sm:grid-cols-3">
+      <% if (isAgency) { %>
+      <label class="block"><span class="label">Opiekun oferty</span><select name="agent" class="select"><% agents.forEach(function(a){ %><option value="<%= a.id %>" <%= String(l.agent && l.agent._id ? l.agent._id : l.agent) === a.id ? 'selected' : '' %>><%= a.name %></option><% }) %></select></label>
+      <label class="block"><span class="label">Nr oferty w biurze</span><input name="refNumber" class="input" value="<%= v('refNumber') %>"></label>
+      <label class="block"><span class="label">Telefon (opcjonalnie)</span><input name="contactPhone" class="input" value="<%= v('contactPhone') %>"></label>
+      <% } else { %>
+      <label class="block"><span class="label">Imię</span><input name="contactName" class="input" value="<%= v('contactName') %>"></label>
+      <label class="block"><span class="label">Telefon</span><input name="contactPhone" class="input" value="<%= v('contactPhone') %>"></label>
+      <label class="block"><span class="label">E-mail</span><input name="contactEmail" type="email" class="input" value="<%= v('contactEmail') %>"></label>
+      <% } %>
+    </div>
+  </section>
+
+  <details class="rounded-xl border border-line" <%= hasExtra ? 'open' : '' %>>
+    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 p-5 sm:p-6 [&::-webkit-details-marker]:hidden">
+      <span><span class="block font-display text-lg font-bold">Dodatkowe informacje</span><span class="text-sm text-muted">Opcjonalnie: rok budowy, stan, ogrzewanie, udogodnienia, film</span></span>
+      <%- icon('chevron-down', 'ico shrink-0') %>
+    </summary>
+    <div class="grid gap-4 border-t border-line p-5 sm:grid-cols-3 sm:p-6">
+      <label class="block"><span class="label">Rynek</span><select name="market" class="select"><option value="wtorny" <%= v('market') !== 'pierwotny' ? 'selected' : '' %>>Wtórny</option><option value="pierwotny" <%= v('market') === 'pierwotny' ? 'selected' : '' %>>Pierwotny</option></select></label>
+      <label class="block"><span class="label">Czynsz / opłaty (zł/mc)</span><input name="rentExtra" inputmode="numeric" class="input num" value="<%= v('rentExtra') %>"></label>
+      <label class="block" data-hide-for="dzialka"><span class="label">Rok budowy</span><input name="yearBuilt" inputmode="numeric" class="input num" value="<%= v('yearBuilt') %>"></label>
+      <label class="block" data-hide-for="dzialka,garaz"><span class="label">Liczba pięter w budynku</span><input name="floorsTotal" inputmode="numeric" class="input num" value="<%= v('floorsTotal') %>"></label>
+      <label class="block" data-hide-for="dzialka"><span class="label">Rodzaj zabudowy</span><select name="buildingType" class="select"><option value="">–</option><% P.OPTIONS.buildingType.forEach(function(o){ %><option <%= v('buildingType') === o ? 'selected' : '' %>><%= o %></option><% }) %></select></label>
+      <label class="block" data-hide-for="dzialka"><span class="label">Stan</span><select name="condition" class="select"><option value="">–</option><% P.OPTIONS.condition.forEach(function(o){ %><option <%= v('condition') === o ? 'selected' : '' %>><%= o %></option><% }) %></select></label>
+      <label class="block" data-hide-for="dzialka,garaz"><span class="label">Ogrzewanie</span><select name="heating" class="select"><option value="">–</option><% P.OPTIONS.heating.forEach(function(o){ %><option <%= v('heating') === o ? 'selected' : '' %>><%= o %></option><% }) %></select></label>
+      <label class="block"><span class="label">Forma własności</span><select name="ownership" class="select"><option value="">–</option><% P.OPTIONS.ownership.forEach(function(o){ %><option <%= v('ownership') === o ? 'selected' : '' %>><%= o %></option><% }) %></select></label>
+      <label class="block" data-show-for="dzialka"><span class="label">Rodzaj działki</span><select name="plotType" class="select"><option value="">–</option><% P.OPTIONS.plotType.forEach(function(o){ %><option <%= v('plotType') === o ? 'selected' : '' %>><%= o %></option><% }) %></select></label>
+      <label class="block"><span class="label">Dostępne od</span><input name="availableFrom" type="date" class="input" value="<%= fmt.inputDate(l.availableFrom) %>"></label>
+      <label class="block"><span class="label">Film YouTube</span><input name="videoUrl" type="url" class="input" value="<%= v('videoUrl') %>" placeholder="https://"></label>
+      <label class="block"><span class="label">Wirtualny spacer</span><input name="virtualTourUrl" type="url" class="input" value="<%= v('virtualTourUrl') %>" placeholder="https://"></label>
+      <div class="sm:col-span-3"><span class="label">Udogodnienia</span>
+        <div class="flex flex-wrap gap-2"><% P.FEATURES.forEach(function(ft){ %><label class="chip cursor-pointer has-[:checked]:border-navy-800 has-[:checked]:bg-navy-800 has-[:checked]:text-white"><input type="checkbox" name="features" value="<%= ft[0] %>" class="sr-only" <%= feats.includes(ft[0]) ? 'checked' : '' %>><%= ft[1] %></label><% }) %></div>
+      </div>
+    </div>
+  </details>
+
+  <div class="sticky bottom-0 z-20 flex flex-wrap items-center justify-end gap-2 border-t border-line bg-white/95 py-4 backdrop-blur" style="padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px))">
+    <% if (isNew || l.status === 'draft') { %><button name="saveAs" value="draft" class="btn btn-outline">Zapisz szkic</button><% } %>
+    <button name="saveAs" value="publish" class="btn btn-accent"><%= isNew ? 'Opublikuj ogłoszenie' : 'Zapisz zmiany' %></button>
+  </div>
+</form>

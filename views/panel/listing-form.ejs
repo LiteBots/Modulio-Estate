@@ -1,0 +1,6 @@
+<div class="mx-auto max-w-3xl">
+  <a href="/panel/ogloszenia" class="text-sm font-semibold text-muted hover:text-navy-900">← Moje ogłoszenia</a>
+  <h2 class="mt-2 font-display text-2xl font-bold"><%= isNew ? 'Dodaj ogłoszenie' : 'Edytuj ogłoszenie' %></h2>
+  <% if (!isNew && l.num) { %><p class="mt-1 text-sm text-muted">Nr oferty <%= l.num %> · <a href="<%= l.url %>" target="_blank" class="font-semibold text-teal-600">podgląd</a></p><% } %>
+  <div class="mt-6"><%- include('../partials/listing-form') %></div>
+</div>

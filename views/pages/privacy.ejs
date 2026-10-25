@@ -1,0 +1,37 @@
+<%- include('../partials/legal-head', { heading: 'Polityka prywatności', since: '1 listopada 2026' }) %>
+<section class="wrap pb-16">
+  <div class="card card-pad sm:p-10">
+    <p class="mb-6 rounded-2xl bg-sun-50 p-4 text-sm text-sun-600">Szablon polityki prywatności – uzupełnij dane administratora w zmiennych Railway i zweryfikuj treść z prawnikiem lub inspektorem ochrony danych.</p>
+    <div class="prose-me max-w-[75ch]">
+      <h2>1. Administrator danych</h2>
+      <p>Administratorem danych osobowych Użytkowników Serwisu ModulioEstate jest <strong><%= site.company.name %></strong>, <%= site.company.address %>, NIP <%= site.company.nip %>. W sprawach danych osobowych napisz na <%= site.contact.email %>.</p>
+      <h2>2. Jakie dane przetwarzamy i w jakim celu</h2>
+      <ul>
+        <li><strong>Konto</strong> – imię i nazwisko, e-mail, hasło (w postaci zaszyfrowanej), telefon, zdjęcie profilowe; w celu świadczenia usługi Konta (art. 6 ust. 1 lit. b RODO).</li>
+        <li><strong>Logowanie przez Google</strong> – identyfikator konta Google, imię i nazwisko, e-mail i zdjęcie profilowe przekazane przez Google za Twoją zgodą przy logowaniu (art. 6 ust. 1 lit. b RODO).</li>
+        <li><strong>Ogłoszenia</strong> – dane zawarte w ogłoszeniu i dane kontaktowe Ogłoszeniodawcy, w celu publikacji (art. 6 ust. 1 lit. b RODO).</li>
+        <li><strong>Zapytania do ogłoszeń</strong> – imię, e-mail, telefon i treść wiadomości przekazywane Ogłoszeniodawcy, który staje się odrębnym administratorem tych danych (art. 6 ust. 1 lit. a i b RODO).</li>
+        <li><strong>Formularze kontaktowe i partnerskie</strong> – dane podane w formularzu, w celu odpowiedzi i przygotowania oferty współpracy (art. 6 ust. 1 lit. f RODO).</li>
+        <li><strong>Bezpieczeństwo</strong> – logi serwera, adres IP, dane sesji, w celu zapewnienia bezpieczeństwa i zapobiegania nadużyciom (art. 6 ust. 1 lit. f RODO).</li>
+        <li><strong>Moderacja</strong> – dane ze zgłoszeń naruszeń, w celu realizacji obowiązków wynikających z aktu o usługach cyfrowych (art. 6 ust. 1 lit. c RODO).</li>
+      </ul>
+      <h2>3. Odbiorcy danych</h2>
+      <p>Dane mogą być przekazywane dostawcom usług IT działającym na zlecenie administratora: hostingu aplikacji i bazy danych, poczty e-mail oraz – przy logowaniu – Google. Dane z zapytań przekazujemy wybranemu Ogłoszeniodawcy (biuru lub osobie prywatnej).</p>
+      <h2>4. Przekazywanie poza EOG</h2>
+      <p>Jeśli dostawca usług przetwarza dane poza Europejskim Obszarem Gospodarczym, odbywa się to na podstawie decyzji Komisji Europejskiej stwierdzającej odpowiedni stopień ochrony lub standardowych klauzul umownych.</p>
+      <h2>5. Okres przechowywania</h2>
+      <ul>
+        <li>Dane Konta – do czasu usunięcia Konta.</li>
+        <li>Ogłoszenia – przez czas publikacji i do 12 miesięcy po jej zakończeniu (statystyki, obsługa sporów).</li>
+        <li>Formularze kontaktowe – do 24 miesięcy od ostatniego kontaktu.</li>
+        <li>Logi bezpieczeństwa – do 12 miesięcy.</li>
+      </ul>
+      <h2>6. Twoje prawa</h2>
+      <p>Masz prawo dostępu do danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przenoszenia danych, sprzeciwu wobec przetwarzania opartego na prawnie uzasadnionym interesie oraz cofnięcia zgody w dowolnym momencie. Kopię swoich danych pobierzesz w panelu: Ustawienia → Pobierz moje dane. Konto usuniesz w Ustawieniach. Przysługuje Ci skarga do Prezesa Urzędu Ochrony Danych Osobowych.</p>
+      <h2>7. Pliki cookies</h2>
+      <p>Szczegóły znajdziesz w <a href="/cookies">polityce cookies</a>.</p>
+      <h2>8. Dobrowolność</h2>
+      <p>Podanie danych jest dobrowolne, ale niezbędne do założenia Konta, publikacji ogłoszenia lub wysłania zapytania.</p>
+    </div>
+  </div>
+</section>
