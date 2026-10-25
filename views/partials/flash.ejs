@@ -1,7 +1,0 @@
-<% if (flash && flash.length) { %>
-<div class="wrap mt-4 grid gap-2" role="status">
-  <% flash.forEach(function(f){ var t = f.type === 'success' ? 'alert-success' : f.type === 'error' ? 'alert-error' : 'alert-info'; %>
-  <div class="alert <%= t %>"><%- icon(f.type === 'success' ? 'check-circle' : f.type === 'error' ? 'alert' : 'info', 'ico mt-px') %><span><%= f.msg %></span></div>
-  <% }) %>
-</div>
-<% } %>
