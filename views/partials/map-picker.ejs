@@ -1,0 +1,16 @@
+<div id="mapPicker" class="fixed inset-0 z-[90] flex items-end justify-center bg-navy-950/60 p-0 sm:items-center sm:p-6" hidden role="dialog" aria-modal="true" aria-labelledby="mpTitle">
+  <div class="flex max-h-[100vh] w-full max-w-5xl flex-col overflow-hidden rounded-t-[24px] bg-paper shadow-lift sm:max-h-[90vh] sm:rounded-[24px]">
+    <div class="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
+      <div><p id="mpTitle" class="font-display text-lg font-bold">Wybierz miasto na mapie</p><p class="text-sm text-muted">Kliknij punkt miejscowości i ustaw, jak daleko od niej szukać.</p></div>
+      <button type="button" class="btn-icon" data-mp-close aria-label="Zamknij"><%- icon('x', 'ico') %></button>
+    </div>
+    <div data-mp-map class="h-[52vh] min-h-[320px] w-full sm:h-[520px]"></div>
+    <div class="grid gap-3 border-t border-line bg-white px-5 py-4 sm:grid-cols-[1fr_auto_auto_auto_auto] sm:items-center">
+      <p data-mp-info class="text-sm">Kliknij miasto na mapie</p>
+      <label class="text-sm"><span class="sr-only">Transakcja</span><select data-mp-tr class="select !py-2.5"><option value="sprzedaz">Kupno</option><option value="wynajem">Wynajem</option></select></label>
+      <label class="text-sm"><span class="sr-only">Rodzaj</span><select data-mp-type class="select !py-2.5"><option value="nieruchomosci">Wszystkie</option><% P.TYPES.forEach(function(t){ %><option value="<%= t.slug %>" <%= t.key === 'mieszkanie' ? 'selected' : '' %>><%= t.plural %></option><% }) %></select></label>
+      <label class="text-sm"><span class="sr-only">Promień</span><select data-mp-radius class="select !py-2.5"><% P.RADIUS.forEach(function(r){ %><option value="<%= r %>" <%= r === 10 ? 'selected' : '' %>><%= r ? '+ ' + r + ' km' : 'Tylko to miasto' %></option><% }) %></select></label>
+      <button type="button" data-mp-go class="btn btn-accent" disabled><%- icon('search', 'ico-sm') %>Pokaż oferty</button>
+    </div>
+  </div>
+</div>

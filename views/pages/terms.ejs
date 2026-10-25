@@ -1,0 +1,59 @@
+<%- include('../partials/legal-head', { heading: 'Regulamin serwisu ModulioEstate', since: '1 listopada 2026' }) %>
+<section class="wrap pb-16">
+  <div class="card card-pad sm:p-10">
+    <p class="mb-6 rounded-2xl bg-sun-50 p-4 text-sm text-sun-600">Szablon regulaminu – przed uruchomieniem serwisu uzupełnij dane operatora w zmiennych Railway (COMPANY_NAME, COMPANY_ADDRESS, COMPANY_NIP) i skonsultuj treść z prawnikiem.</p>
+    <div class="prose-me max-w-[75ch]">
+      <h2>§1. Postanowienia ogólne</h2>
+      <ol>
+        <li>Regulamin określa zasady korzystania z serwisu internetowego ModulioEstate dostępnego pod adresem <%= site.url %> („Serwis”).</li>
+        <li>Operatorem Serwisu jest <strong><%= site.company.name %></strong>, <%= site.company.address %>, NIP <%= site.company.nip %> („Operator”). Kontakt: <%= site.contact.email %>.</li>
+        <li>Serwis jest platformą ogłoszeniową umożliwiającą publikowanie i przeglądanie ogłoszeń dotyczących nieruchomości położonych w województwie pomorskim i zachodniopomorskim.</li>
+        <li>Regulamin jest regulaminem, o którym mowa w ustawie z dnia 18 lipca 2002 r. o świadczeniu usług drogą elektroniczną.</li>
+      </ol>
+      <h2>§2. Definicje</h2>
+      <ul>
+        <li><strong>Użytkownik</strong> – osoba korzystająca z Serwisu, w tym przeglądająca ogłoszenia.</li>
+        <li><strong>Konto</strong> – indywidualny panel Użytkownika dostępny po rejestracji adresem e-mail i hasłem lub przez konto Google.</li>
+        <li><strong>Ogłoszeniodawca</strong> – Użytkownik publikujący ogłoszenie: osoba prywatna albo Partner.</li>
+        <li><strong>Partner</strong> – biuro nieruchomości lub deweloper, który zawarł z Operatorem indywidualną umowę współpracy i korzysta z panelu biura.</li>
+      </ul>
+      <h2>§3. Usługi</h2>
+      <ol>
+        <li>Operator świadczy nieodpłatnie: przeglądanie ogłoszeń, wyszukiwarkę, kalkulator kredytowy, raport cen, prowadzenie Konta, zapisywanie ulubionych ofert i wyszukiwań, przesyłanie zapytań do Ogłoszeniodawców.</li>
+        <li>Osoba prywatna może opublikować ogłoszenia w limicie wskazanym w panelu. Ogłoszenie jest aktywne przez 60 dni z możliwością przedłużenia.</li>
+        <li>Usługi dla Partnerów (panel biura, strona biura, wyróżnienia, import ofert) świadczone są na podstawie odrębnej umowy. Operator nie publikuje cennika – warunki ustalane są indywidualnie.</li>
+        <li>Usługi reklamowe świadczone są na podstawie indywidualnych zamówień.</li>
+      </ol>
+      <h2>§4. Wymagania techniczne</h2>
+      <p>Do korzystania z Serwisu potrzebne jest urządzenie z dostępem do internetu, aktualna przeglądarka internetowa z obsługą plików cookies oraz – w przypadku Konta – adres e-mail.</p>
+      <h2>§5. Konto</h2>
+      <ol>
+        <li>Rejestracja wymaga podania adresu e-mail, hasła i akceptacji Regulaminu albo zalogowania przez konto Google.</li>
+        <li>Użytkownik zobowiązany jest chronić dane logowania. Użytkownik może w każdej chwili usunąć Konto w ustawieniach panelu.</li>
+        <li>Operator może zablokować Konto w przypadku rażącego naruszenia Regulaminu lub prawa, informując Użytkownika o przyczynie.</li>
+      </ol>
+      <h2>§6. Zasady publikacji ogłoszeń</h2>
+      <ol>
+        <li>Ogłoszenie musi dotyczyć rzeczywiście istniejącej nieruchomości położonej w województwie pomorskim lub zachodniopomorskim, do której Ogłoszeniodawca ma prawo dysponowania lub upoważnienie właściciela.</li>
+        <li>Treść ogłoszenia musi być zgodna z prawdą, prawem i dobrymi obyczajami. Zakazane jest publikowanie danych osób trzecich bez zgody, treści wprowadzających w błąd, duplikatów oraz treści naruszających prawa autorskie (w szczególności cudzych zdjęć).</li>
+        <li>Ogłoszeniodawca ponosi odpowiedzialność za treść ogłoszenia. Operator nie jest stroną transakcji zawieranych pomiędzy Użytkownikami.</li>
+        <li>Publikując zdjęcia, Ogłoszeniodawca udziela Operatorowi niewyłącznej, nieodpłatnej licencji na ich wyświetlanie w Serwisie i w materiałach promujących ogłoszenie na czas publikacji.</li>
+      </ol>
+      <h2>§7. Zgłaszanie nielegalnych treści</h2>
+      <ol>
+        <li>Każdy może zgłosić ogłoszenie, które uważa za nielegalne lub sprzeczne z Regulaminem, za pomocą przycisku „Zgłoś ogłoszenie” lub na adres <%= site.contact.email %>.</li>
+        <li>Zgłoszenie powinno zawierać adres ogłoszenia, uzasadnienie oraz – opcjonalnie – dane kontaktowe zgłaszającego.</li>
+        <li>Operator rozpatruje zgłoszenia w sposób rzetelny i obiektywny, bez zbędnej zwłoki. O decyzji o usunięciu lub zablokowaniu treści Operator informuje Ogłoszeniodawcę wraz z uzasadnieniem i informacją o możliwości odwołania.</li>
+      </ol>
+      <h2>§8. Reklamacje</h2>
+      <p>Reklamacje dotyczące działania Serwisu można składać na adres <%= site.contact.email %>. Operator rozpatruje reklamację w terminie 14 dni od jej otrzymania i odpowiada na adres e-mail wskazany w reklamacji.</p>
+      <h2>§9. Dane osobowe</h2>
+      <p>Zasady przetwarzania danych osobowych opisuje <a href="/polityka-prywatnosci">Polityka prywatności</a>.</p>
+      <h2>§10. Postanowienia końcowe</h2>
+      <ol>
+        <li>Operator może zmienić Regulamin z ważnych przyczyn (zmiana prawa, zmiana zakresu usług), informując Użytkowników z co najmniej 7-dniowym wyprzedzeniem.</li>
+        <li>W sprawach nieuregulowanych zastosowanie mają przepisy prawa polskiego. Konsument może skorzystać z pozasądowych sposobów rozpatrywania sporów.</li>
+      </ol>
+    </div>
+  </div>
+</section>

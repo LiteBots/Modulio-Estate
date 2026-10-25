@@ -1,0 +1,7 @@
+<div id="compareBar" class="fixed bottom-4 left-1/2 z-[65] -translate-x-1/2" style="margin-bottom: env(safe-area-inset-bottom, 0px)" hidden>
+  <div class="flex items-center gap-3 rounded-[18px] border border-line bg-navy-800 py-2 pl-4 pr-2 text-sm text-white shadow-lift">
+    <%- icon('layers', 'ico-sm text-orange-400') %><span>Porównanie: <b data-compare-count>0</b>/4</span>
+    <a href="/porownaj" data-compare-go class="btn btn-accent btn-sm">Porównaj</a>
+    <button type="button" data-compare-clear class="grid h-8 w-8 place-items-center rounded-full hover:bg-white/10" aria-label="Wyczyść porównanie"><%- icon('x', 'ico-sm') %></button>
+  </div>
+</div>

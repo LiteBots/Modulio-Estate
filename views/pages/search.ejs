@@ -1,0 +1,180 @@
+<%
+  var page = f.strona;
+  var priceSteps = transaction === 'wynajem' ? [1000,1500,2000,2500,3000,4000,5000,7000,10000] : [200000,300000,400000,500000,600000,800000,1000000,1500000,2000000,3000000];
+  var sortedCities = function(v){ return LOC.CITIES.filter(function(c){ return c.voivodeship === v; }).sort(function(a,b){ return a.name.localeCompare(b.name, 'pl'); }); };
+  var moreOpen = !!(f.rynek || f.dzielnica || f.cechy.length || f.rok_od || f.pietro_do !== null || f.bez_prowizji || f.ze_zdjeciami || f.q);
+  var featuredIds = result.featured.map(function(x){ return String(x._id); });
+  var rows = result.featured.concat(result.items.filter(function(x){ return featuredIds.indexOf(String(x._id)) === -1; }));
+%>
+<!-- Filtry -->
+<%
+  var multi = function(name, key, sel){ return P.OPTIONS[key].map(function(x){ return '<label class="chip cursor-pointer has-[:checked]:border-navy-800 has-[:checked]:bg-navy-800 has-[:checked]:text-white"><input type="checkbox" name="' + name + '" value="' + x + '" class="sr-only"' + (sel.indexOf(x) > -1 ? ' checked' : '') + '>' + x + '</label>'; }).join(''); };
+  var nv = function(k){ return f[k] !== null && f[k] !== undefined ? f[k] : ''; };
+  var radiusOk = f.location && f.location.kind !== 'voivodeship' && f.location.lat;
+%>
+<section class="wrap pt-4">
+  <form method="get" action="/szukaj" class="rounded-[22px] border border-line bg-white p-3 shadow-soft" data-search-form>
+    <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-[0.9fr_1fr_1.5fr_0.85fr_1.4fr_1.3fr_auto]">
+      <select name="transakcja" class="select" aria-label="Transakcja"><option value="sprzedaz" <%= transaction === 'sprzedaz' ? 'selected' : '' %>>Kupno</option><option value="wynajem" <%= transaction === 'wynajem' ? 'selected' : '' %>>Wynajem</option></select>
+      <select name="typ" class="select" aria-label="Rodzaj"><option value="">Wszystkie rodzaje</option><% P.TYPES.forEach(function(t){ %><option value="<%= t.key %>" <%= f.type && f.type.key === t.key ? 'selected' : '' %>><%= t.plural %></option><% }) %></select>
+      <div class="flex gap-2">
+        <select name="lokalizacja" class="select min-w-0" aria-label="Lokalizacja">
+          <option value="">Cały region</option>
+          <option value="trojmiasto" <%= locationSlug === 'trojmiasto' ? 'selected' : '' %>>Trójmiasto</option>
+          <option value="pomorskie" <%= locationSlug === 'pomorskie' ? 'selected' : '' %>>Woj. pomorskie</option>
+          <option value="zachodniopomorskie" <%= locationSlug === 'zachodniopomorskie' ? 'selected' : '' %>>Woj. zachodniopomorskie</option>
+          <% ['pomorskie','zachodniopomorskie'].forEach(function(vv){ %><optgroup label="<%= vv === 'pomorskie' ? 'Pomorskie' : 'Zachodniopomorskie' %>"><% LOC.CITIES.filter(function(c){ return c.voivodeship === vv; }).sort(function(a,b){ return a.name.localeCompare(b.name, 'pl'); }).forEach(function(c){ %><option value="<%= c.slug %>" <%= locationSlug === c.slug ? 'selected' : '' %>><%= c.name %></option><% }) %></optgroup><% }) %>
+        </select>
+        <button type="button" class="btn btn-outline shrink-0 !px-3" data-open-map-picker data-preset="<%= locationSlug %>" title="Wybierz na mapie" aria-label="Wybierz na mapie"><%- icon('map', 'ico-sm') %></button>
+      </div>
+      <select name="promien" class="select" aria-label="Promień"><% P.RADIUS.forEach(function(r){ %><option value="<%= r %>" <%= f.promien === r ? 'selected' : '' %>><%= r ? '+ ' + r + ' km' : '+ 0 km' %></option><% }) %></select>
+      <div class="grid grid-cols-2 gap-2">
+        <input name="cena_od" inputmode="numeric" class="input num" placeholder="Cena od" aria-label="Cena od" value="<%= nv('cena_od') %>">
+        <input name="cena_do" inputmode="numeric" class="input num" placeholder="Cena do" aria-label="Cena do" value="<%= nv('cena_do') %>">
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <input name="pow_od" inputmode="numeric" class="input num" placeholder="m² od" aria-label="Metraż od" value="<%= nv('pow_od') %>">
+        <input name="pow_do" inputmode="numeric" class="input num" placeholder="m² do" aria-label="Metraż do" value="<%= nv('pow_do') %>">
+      </div>
+      <button class="btn btn-accent"><%- icon('search', 'ico-sm') %>Szukaj</button>
+    </div>
+    <details class="mt-2" <%= query.filtry === '1' ? 'open' : '' %>>
+      <summary class="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-[10px] px-2 py-1.5 text-sm font-bold hover:bg-paper [&::-webkit-details-marker]:hidden"><%- icon('filter', 'ico-sm text-orange-500') %>Więcej filtrów<% if (chips.length) { %><span class="grid h-5 min-w-[20px] place-items-center rounded-full bg-orange-500 px-1.5 text-[11px] text-ink"><%= chips.length %></span><% } %></summary>
+      <div class="mt-2 grid gap-5 border-t border-line p-2 pt-4">
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+          <label class="block"><span class="label">Liczba pokoi</span><span class="grid grid-cols-2 gap-2"><input name="pokoje_od" inputmode="numeric" class="input" placeholder="od" value="<%= nv('pokoje_od') %>"><input name="pokoje_do" inputmode="numeric" class="input" placeholder="do" value="<%= nv('pokoje_do') %>"></span></label>
+          <label class="block"><span class="label">Piętro</span><span class="grid grid-cols-2 gap-2"><input name="pietro_od" inputmode="numeric" class="input" placeholder="od" value="<%= nv('pietro_od') %>"><input name="pietro_do" inputmode="numeric" class="input" placeholder="do" value="<%= nv('pietro_do') %>"></span></label>
+          <label class="block"><span class="label">Rok budowy</span><span class="grid grid-cols-2 gap-2"><input name="rok_od" inputmode="numeric" class="input" placeholder="od" value="<%= nv('rok_od') %>"><input name="rok_do" inputmode="numeric" class="input" placeholder="do" value="<%= nv('rok_do') %>"></span></label>
+          <label class="block"><span class="label">Cena za m²</span><span class="grid grid-cols-2 gap-2"><input name="cena_m2_od" inputmode="numeric" class="input" placeholder="od" value="<%= nv('cena_m2_od') %>"><input name="cena_m2_do" inputmode="numeric" class="input" placeholder="do" value="<%= nv('cena_m2_do') %>"></span></label>
+          <label class="block"><span class="label">Czynsz do (zł)</span><input name="czynsz_do" inputmode="numeric" class="input" value="<%= nv('czynsz_do') %>"></label>
+          <label class="block"><span class="label">Łazienki od</span><input name="lazienki_od" inputmode="numeric" class="input" value="<%= nv('lazienki_od') %>"></label>
+          <label class="block"><span class="label">Rynek</span><select name="rynek" class="select"><option value="">Dowolny</option><option value="pierwotny" <%= f.rynek === 'pierwotny' ? 'selected' : '' %>>Pierwotny</option><option value="wtorny" <%= f.rynek === 'wtorny' ? 'selected' : '' %>>Wtórny</option></select></label>
+          <label class="block"><span class="label">Ogłoszeniodawca</span><select name="ogloszeniodawca" class="select"><option value="">Wszyscy</option><% Object.keys(P.ADVERTISER).forEach(function(k){ %><option value="<%= k %>" <%= f.ogloszeniodawca === k ? 'selected' : '' %>><%= P.ADVERTISER[k] %></option><% }) %></select></label>
+          <label class="block"><span class="label">Dostępne do dnia</span><input name="dostepne_od" type="date" class="input" value="<%= f.dostepne_od %>"></label>
+          <label class="block"><span class="label">Dodane</span><select name="dodane" class="select"><option value="">Kiedykolwiek</option><% [['1','Ostatnie 24 h'],['3','Ostatnie 3 dni'],['7','Ostatni tydzień'],['14','Ostatnie 2 tygodnie'],['30','Ostatni miesiąc']].forEach(function(o){ %><option value="<%= o[0] %>" <%= f.dodane === o[0] ? 'selected' : '' %>><%= o[1] %></option><% }) %></select></label>
+          <label class="block"><span class="label">Parking</span><select name="parking" class="select"><option value="">Dowolny</option><% P.OPTIONS.parking.forEach(function(o){ %><option <%= f.parking === o ? 'selected' : '' %>><%= o %></option><% }) %></select></label>
+          <label class="block"><span class="label">Materiał budynku</span><select name="material" class="select"><option value="">Dowolny</option><% P.OPTIONS.buildingMaterial.forEach(function(o){ %><option <%= f.material === o ? 'selected' : '' %>><%= o %></option><% }) %></select></label>
+          <label class="block"><span class="label">Działka od (m²)</span><input name="dzialka_od" inputmode="numeric" class="input" value="<%= nv('dzialka_od') %>"></label>
+          <% if (f.location && f.location.districts && f.location.districts.length) { %>
+          <label class="block"><span class="label">Dzielnica</span><select name="dzielnica" class="select"><option value="">Wszystkie</option><% f.location.districts.forEach(function(d){ %><option <%= f.dzielnica === d ? 'selected' : '' %>><%= d %></option><% }) %></select></label>
+          <% } %>
+          <label class="block lg:col-span-2"><span class="label">Słowa kluczowe</span><input name="q" class="input" placeholder="np. balkon, Wrzeszcz, garaż" value="<%= f.q %>"></label>
+        </div>
+        <div><span class="label">Stan wykończenia</span><div class="flex flex-wrap gap-2"><%- multi('stan', 'condition', f.stan) %></div></div>
+        <div><span class="label">Rodzaj zabudowy</span><div class="flex flex-wrap gap-2"><%- multi('zabudowa', 'buildingType', f.zabudowa) %></div></div>
+        <div><span class="label">Ogrzewanie</span><div class="flex flex-wrap gap-2"><%- multi('ogrzewanie', 'heating', f.ogrzewanie) %></div></div>
+        <div><span class="label">Udogodnienia</span>
+          <div class="flex flex-wrap gap-2">
+            <% P.FEATURES.slice(0, 22).forEach(function(ft){ %><label class="chip cursor-pointer has-[:checked]:border-navy-800 has-[:checked]:bg-navy-800 has-[:checked]:text-white"><input type="checkbox" name="cechy" value="<%= ft[0] %>" class="sr-only" <%= f.cechy.includes(ft[0]) ? 'checked' : '' %>><%= ft[1] %></label><% }) %>
+          </div></div>
+        <div><span class="label">Inne</span>
+          <div class="flex flex-wrap gap-2">
+            <% [['bez_prowizji','Bez prowizji', f.bez_prowizji],['ze_zdjeciami','Ze zdjęciami', f.ze_zdjeciami],['obnizka','Obniżona cena', f.obnizka],['z_mapa','Z dokładnym adresem', f.z_mapa]].forEach(function(o){ %><label class="chip cursor-pointer has-[:checked]:border-navy-800 has-[:checked]:bg-navy-800 has-[:checked]:text-white"><input type="checkbox" name="<%= o[0] %>" value="1" class="sr-only" <%= o[2] ? 'checked' : '' %>><%= o[1] %></label><% }) %>
+          </div></div>
+        <div class="flex flex-wrap justify-end gap-2"><a href="<%= basePath.split('?')[0] %>" class="btn btn-ghost">Wyczyść</a><button class="btn btn-primary">Pokaż ogłoszenia</button></div>
+      </div>
+    </details>
+    <input type="hidden" name="widok" value="<%= view === 'mapa' ? 'mapa' : '' %>" data-keep-empty>
+  </form>
+</section>
+
+<div class="wrap py-6">
+  <%- include('../partials/breadcrumbs') %>
+  <div class="mt-3 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+    <div class="min-w-0">
+      <h1 class="font-display text-2xl font-bold sm:text-[28px]"><%= h.h1 %></h1>
+      <p class="mt-1 text-muted"><span class="num"><%= fmt.num(result.total) %></span> <%= fmt.plural(result.total, 'ogłoszenie', 'ogłoszenia', 'ogłoszeń') %></p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <div class="inline-flex rounded-[14px] bg-white p-1 ring-1 ring-line">
+      <a href="<%= basePath + qs({}) %>" class="flex items-center gap-1.5 rounded-[11px] px-4 py-2 text-sm font-bold <%= view === 'lista' ? 'bg-navy-800 text-white' : 'text-muted hover:text-ink' %>"><%- icon('list', 'ico-sm') %>Lista</a>
+      <a href="<%= basePath + qs({}) + (qs({}) ? '&' : '?') %>widok=mapa" class="flex items-center gap-1.5 rounded-[11px] px-4 py-2 text-sm font-bold <%= view === 'mapa' ? 'bg-navy-800 text-white' : 'text-muted hover:text-ink' %>"><%- icon('map', 'ico-sm') %>Mapa</a>
+      </div>
+      <form method="post" action="/panel/wyszukiwania">
+        <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="url" value="<%= saveUrl %>"><input type="hidden" name="name" value="<%= h.h1 %>">
+        <button class="btn btn-outline"><%- icon('bell', 'ico-sm') %>Zapisz wyszukiwanie</button>
+      </form>
+      <form method="get" action="<%= basePath %>" data-autosubmit>
+        <% Object.keys(query).forEach(function(k){ if (k !== 'sort' && k !== 'strona') { [].concat(query[k]).forEach(function(v){ %><input type="hidden" name="<%= k %>" value="<%= v %>"><% }) } }) %>
+        <label for="sort" class="sr-only">Sortowanie</label>
+        <select id="sort" name="sort" class="select !w-auto">
+          <option value="najnowsze" <%= f.sort === 'najnowsze' ? 'selected' : '' %>>Najnowsze</option>
+          <option value="cena_rosnaco" <%= f.sort === 'cena_rosnaco' ? 'selected' : '' %>>Najtańsze</option>
+          <option value="cena_malejaco" <%= f.sort === 'cena_malejaco' ? 'selected' : '' %>>Najdroższe</option>
+          <option value="cena_m2" <%= f.sort === 'cena_m2' ? 'selected' : '' %>>Najniższa cena za m²</option>
+          <option value="powierzchnia" <%= f.sort === 'powierzchnia' ? 'selected' : '' %>>Największe</option>
+        </select>
+      </form>
+    </div>
+  </div>
+
+  <% if (chips.length) { %>
+  <div class="mt-4 flex flex-wrap items-center gap-2">
+    <% chips.forEach(function(c){ %><a href="<%= c.href %><%= view === 'mapa' ? (c.href.indexOf('?') > -1 ? '&' : '?') + 'widok=mapa' : '' %>" class="chip !rounded-full !bg-white hover:!border-orange-400"><%= c.label %><%- icon('x', 'ico-sm text-muted') %></a><% }) %>
+    <a href="<%= basePath %>" class="text-sm font-semibold text-muted underline hover:text-ink">Wyczyść wszystkie</a>
+  </div>
+  <% } %>
+
+  <% if (view === 'mapa') { %>
+  <% var apiQs = qs({ strona: '' }); var api = '/api/mapa' + (apiQs ? apiQs + '&' : '?') + 'transakcja=' + transaction + '&typ_slug=' + typeSlug + (locationSlug ? '&lokalizacja=' + locationSlug : ''); %>
+  <div class="mt-6 overflow-hidden rounded-[22px] border border-line bg-white">
+    <div data-results-map data-api="<%= api %>" <% if (f.promien && f.location && f.location.lat) { %>data-lat="<%= f.location.lat %>" data-lng="<%= f.location.lng %>" data-radius="<%= f.promien %>"<% } %> class="h-[68vh] min-h-[420px] w-full"></div>
+    <p data-map-status class="border-t border-line px-4 py-2.5 text-sm text-muted">Wczytuję ogłoszenia…</p>
+  </div>
+  <% } else { %>
+  <div class="mt-6 grid gap-8 lg:grid-cols-[1fr_300px]">
+    <div class="min-w-0">
+      <% if (adSlots.search_top) { %><div class="mb-4"><%- include('../partials/ad-slot', { ad: adSlots.search_top, placement: 'search_top' }) %></div><% } %>
+      <% if (rows.length) { %>
+      <div class="grid gap-4">
+        <% rows.forEach(function(l, i){ %>
+          <%- include('../partials/listing-row', { l: l }) %>
+          <% if (i === 5 && adSlots.search_inline) { %><%- include('../partials/ad-slot', { ad: adSlots.search_inline, placement: 'search_inline' }) %><% } %>
+        <% }) %>
+      </div>
+      <%- include('../partials/pagination', { pages: result.pages, page: page, href: function(p){ return basePath + qs({ strona: p }); } }) %>
+      <% } else { %>
+      <div class="rounded-xl border border-line p-10 text-center">
+        <h2 class="font-display text-xl font-bold">Brak ogłoszeń dla tych kryteriów</h2>
+        <p class="mt-2 text-muted">Zmień filtry albo zapisz wyszukiwanie – damy znać, gdy pojawi się pasująca oferta.</p>
+        <a href="/<%= transaction %>/<%= typeSlug %>" class="btn btn-primary mt-5">Szukaj w całym regionie</a>
+      </div>
+      <% } %>
+    </div>
+
+    <aside class="grid content-start gap-4">
+      <div class="rounded-xl border border-line p-5">
+        <p class="font-semibold">Powiadomienia o nowych ofertach</p>
+        <p class="mt-1 text-sm text-muted">Zapisz to wyszukiwanie, a wyślemy e-mail, gdy pojawi się nowe ogłoszenie.</p>
+        <form method="post" action="/panel/wyszukiwania" class="mt-3"><input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="url" value="<%= saveUrl %>"><input type="hidden" name="name" value="<%= h.h1 %>"><button class="btn btn-primary w-full"><%- icon('bell', 'ico-sm') %>Włącz powiadomienia</button></form>
+      </div>
+      <a href="<%= basePath + qs({}) + (qs({}) ? '&' : '?') %>widok=mapa" class="group block overflow-hidden rounded-xl border border-line bg-white">
+        <div class="scene h-28"><%- art.scene('sea', 'day', 7) %></div>
+        <div class="flex items-center justify-between gap-2 p-4"><span><b class="block">Zobacz na mapie</b><span class="text-sm text-muted">Ogłoszenia z cenami na mapie</span></span><%- icon('arrow-right', 'ico-sm text-orange-500 transition group-hover:translate-x-1') %></div>
+      </a>
+      <div class="rounded-xl border border-line p-5" data-recent hidden>
+        <p class="font-semibold">Ostatnio oglądane</p>
+        <div class="mt-3 grid gap-2" data-recent-list></div>
+      </div>
+      <div class="rounded-xl border border-line p-5">
+        <p class="font-semibold">Pozostałe rodzaje</p>
+        <ul class="mt-2 grid gap-1.5 text-sm">
+          <% P.TYPES.forEach(function(t){ if (t.slug !== typeSlug) { %><li><a href="/<%= transaction %>/<%= t.slug %><%= locationSlug ? '/' + locationSlug : '' %>" class="text-navy-600 hover:text-orange-600"><%= t[transaction === 'wynajem' ? 'rent' : 'sale'] %></a></li><% } }) %>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <% } %>
+
+  <% if (intro || cityLinks.length) { %>
+  <section class="mt-14 border-t border-line pt-8 text-sm text-muted">
+    <% if (intro) { %><p class="max-w-4xl leading-relaxed"><%= intro %></p><% } %>
+    <% if (coastalNote) { %><p class="mt-2 max-w-4xl"><%= coastalNote %></p><% } %>
+    <p class="mt-5 font-semibold text-navy-900"><%= (f.type || P.ALL_TYPE)[transaction === 'wynajem' ? 'rent' : 'sale'] %> w innych miejscowościach</p>
+    <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1.5">
+      <% cityLinks.forEach(function(c){ %><a href="/<%= transaction %>/<%= typeSlug %>/<%= c.slug %>" class="hover:text-navy-900 hover:underline"><%= c.name %></a><% }) %>
+    </div>
+  </section>
+  <% } %>
+</div>

@@ -1,0 +1,25 @@
+<section class="wrap py-8">
+  <%- include('../partials/breadcrumbs') %>
+  <div class="mt-4 flex flex-col gap-6 rounded-2xl border border-line bg-white p-6 sm:flex-row sm:items-center sm:p-8">
+    <span class="grid h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-xl bg-paper font-display text-2xl font-bold text-navy-800"><% if (a.logo) { %><img src="<%= a.logo %>" alt="<%= a.name %>" class="h-full w-full object-contain p-2"><% } else { %><%= a.name.slice(0,2).toUpperCase() %><% } %></span>
+    <div class="min-w-0 flex-1">
+      <h1 class="font-display text-3xl font-extrabold"><%= a.name %></h1>
+      <p class="mt-1 text-muted"><%= a.address ? a.address + ', ' : '' %><%= city ? city.name : '' %><%= a.verified ? ' · biuro zweryfikowane' : '' %></p>
+      <% if (a.shortDescription) { %><p class="mt-3 max-w-2xl"><%= a.shortDescription %></p><% } %>
+    </div>
+    <div class="grid gap-2 text-sm">
+      <% if (a.phone) { %><span class="flex items-center gap-2 font-semibold"><%- icon('phone', 'ico-sm text-teal-500') %><span class="select-all"><%= a.phone %></span></span><% } %>
+      <% if (a.email) { %><span class="flex items-center gap-2"><%- icon('mail', 'ico-sm text-teal-500') %><span class="select-all"><%= a.email %></span></span><% } %>
+      <% if (a.website) { %><a href="<%= a.website %>" target="_blank" rel="noopener nofollow" class="flex items-center gap-2 hover:text-orange-600"><%- icon('globe', 'ico-sm text-teal-500') %>Strona www</a><% } %>
+    </div>
+  </div>
+</section>
+<section id="oferty" class="wrap pb-12"><%- include('../partials/agency-listings') %></section>
+<section id="kontakt" class="wrap grid gap-6 pb-16 lg:grid-cols-[1fr_1.2fr]">
+  <div class="card card-pad">
+    <h2 class="font-display text-2xl font-bold">O biurze</h2>
+    <div class="prose-me mt-3"><%- fmt.paragraphs(a.about || a.shortDescription || 'Biuro nieruchomości współpracujące z ModulioEstate.') %></div>
+    <% if (counts.cities.length) { %><p class="mt-4 text-sm text-muted">Oferty w: <%= counts.cities.join(', ') %></p><% } %>
+  </div>
+  <div class="card card-pad"><h2 class="mb-4 font-display text-2xl font-bold">Napisz do biura</h2><%- include('../partials/agency-contact') %></div>
+</section>

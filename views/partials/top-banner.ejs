@@ -1,0 +1,25 @@
+<% var ad = typeof topAd !== 'undefined' ? topAd : null; %>
+<div class="wrap pt-3" aria-label="Reklama">
+  <% if (ad) { %>
+  <a href="/r/<%= ad._id %>" rel="sponsored noopener" target="_blank" class="group relative block overflow-hidden rounded-[18px] border border-line bg-white">
+    <span class="absolute right-2 top-2 z-10 rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted">Reklama</span>
+    <% if (ad.image) { %>
+    <picture>
+      <% if (ad.imageMobile) { %><source media="(max-width: 640px)" srcset="<%= ad.imageMobile %>"><% } %>
+      <img src="<%= ad.image %>" alt="<%= ad.headline || ad.name %>" class="block h-[100px] w-full object-cover sm:h-[120px]">
+    </picture>
+    <% } else { %>
+    <div class="flex min-h-[100px] flex-col justify-center gap-3 bg-navy-800 px-6 py-4 text-white sm:min-h-[120px] sm:flex-row sm:items-center sm:justify-between sm:px-8">
+      <div><p class="font-display text-xl font-bold text-white" style="letter-spacing:-0.03em"><%= ad.headline || ad.name %></p><% if (ad.text) { %><p class="text-sm text-white/75"><%= ad.text %></p><% } %></div>
+      <% if (ad.cta) { %><span class="btn btn-accent btn-sm w-fit shrink-0"><%= ad.cta %></span><% } %>
+    </div>
+    <% } %>
+  </a>
+  <% } else { %>
+  <a href="/reklama" class="group flex min-h-[90px] items-center justify-center gap-4 rounded-[18px] border-2 border-dashed border-navy-200 bg-white/60 px-5 text-center transition hover:border-orange-400 hover:bg-white sm:min-h-[110px]">
+    <span class="hidden h-11 w-11 shrink-0 place-items-center rounded-[13px] bg-orange-100 text-orange-600 sm:grid"><%- icon('megaphone', 'ico') %></span>
+    <span><span class="block text-[10px] font-bold uppercase tracking-[.16em] text-muted">Miejsce na baner 1280 × 120 px</span><span class="block font-display text-[17px] font-bold">Twoja reklama na wszystkich stronach ModulioEstate</span></span>
+    <span class="btn btn-outline btn-sm hidden shrink-0 md:inline-flex">Zarezerwuj miejsce <%- icon('arrow-right', 'ico-sm') %></span>
+  </a>
+  <% } %>
+</div>

@@ -1,0 +1,205 @@
+<%
+  var imgs = l.images || [];
+  var params = [
+    ['Metraż', l.area ? fmt.num(l.area, l.area % 1 ? 1 : 0) + ' m²' : null],
+    ['Liczba pokoi', l.rooms],
+    ['Łazienki', l.bathrooms],
+    ['Piętro', (l.floor !== undefined && l.floor !== null) ? fmt.floorLabel(l.floor, l.floorsTotal) : null],
+    ['Czynsz', l.rentExtra ? fmt.num(l.rentExtra) + ' zł/mc' : null],
+    ['Kaucja', l.deposit ? fmt.num(l.deposit) + ' zł' : null],
+    ['Rynek', P.MARKETS[l.market]],
+    ['Typ ogłoszeniodawcy', P.ADVERTISER[l.advertiserType || (l.agency ? 'biuro' : 'prywatny')]],
+    ['Rodzaj zabudowy', l.buildingType],
+    ['Stan wykończenia', l.condition],
+    ['Ogrzewanie', l.heating],
+    ['Dostępne od', l.availableFrom ? fmt.date(l.availableFrom) : (l.transaction === 'wynajem' ? 'od zaraz' : null)],
+    ['Rok budowy', l.yearBuilt],
+    ['Materiał budynku', l.buildingMaterial],
+    ['Okna', l.windows],
+    ['Kuchnia', l.kitchen],
+    ['Parking', l.parking],
+    ['Balkon / taras', l.balconyArea ? fmt.num(l.balconyArea, 1) + ' m²' : null],
+    ['Powierzchnia działki', l.plotArea ? fmt.num(l.plotArea) + ' m²' : null],
+    ['Wymiary działki', l.plotWidth && l.plotLength ? fmt.num(l.plotWidth) + ' × ' + fmt.num(l.plotLength) + ' m' : null],
+    ['Rodzaj działki', l.plotType],
+    ['Dach', l.roof],
+    ['Dojazd', l.access],
+    ['Klasa energetyczna', l.energyClass ? l.energyClass + (l.energyKwh ? ' (' + fmt.num(l.energyKwh) + ' kWh/m²·rok)' : '') : null],
+    ['Forma własności', l.ownership],
+    ['Najem dla', l.rentFor],
+    ['Minimalny okres najmu', l.minRentMonths ? l.minRentMonths + ' mies.' : null]
+  ].filter(function(p){ return p[1] !== null && p[1] !== undefined && p[1] !== ''; });
+  var inactive = l.status !== 'active' && l.status !== 'reserved';
+  var ytId = l.videoUrl && (l.videoUrl.match(/(?:youtu\.be\/|v=|shorts\/)([\w-]{11})/) || [])[1];
+  var rate = null;
+  if (l.transaction === 'sprzedaz' && l.price) { var loan = l.price * 0.8, r = 0.069 / 12, n = 300; rate = loan * r / (1 - Math.pow(1 + r, -n)); }
+%>
+<div class="wrap pt-4">
+  <%- include('../partials/breadcrumbs') %>
+  <% if (canManage) { %>
+  <div class="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-paper px-4 py-2.5 text-sm">
+    <span>Twoje ogłoszenie · <b><%= P.LISTING_STATUS[l.status].label %></b> · <span class="num"><%= fmt.num(l.views) %></span> wyświetleń</span>
+    <a href="<%= l.agency ? '/biuro-panel/ogloszenia/' + l._id + '/edytuj' : '/panel/ogloszenia/' + l._id + '/edytuj' %>" class="btn btn-outline btn-sm"><%- icon('edit', 'ico-sm') %>Edytuj</a>
+  </div>
+  <% } %>
+  <% if (inactive) { %><div class="alert alert-info mt-3"><%- icon('info', 'ico') %><span>To ogłoszenie jest już nieaktualne. <a href="/<%= l.transaction %>/<%= t.slug %>/<%= l.city %>" class="font-semibold underline">Zobacz podobne oferty</a>.</span></div><% } %>
+
+  <span hidden data-track-view="<%= l.num %>"></span>
+  <section class="mt-4 grid gap-2 overflow-hidden rounded-xl md:h-[460px] md:grid-cols-4 md:grid-rows-2" data-gallery>
+    <% if (imgs.length) { %>
+      <% imgs.slice(0, 5).forEach(function(im, i){ %>
+      <button type="button" data-gallery-open="<%= i %>" class="relative overflow-hidden bg-sand <%= i === 0 ? 'aspect-[4/3] md:col-span-2 md:row-span-2 md:aspect-auto' : 'hidden md:block' %>">
+        <img src="<%= im.url %>" alt="<%= l.title %> – zdjęcie <%= i + 1 %>" <%= i ? 'loading="lazy"' : 'fetchpriority="high"' %> class="h-full w-full object-cover">
+        <% if (i === 4 && imgs.length > 5) { %><span class="absolute inset-0 grid place-items-center bg-navy-950/50 font-semibold text-white">+<%= imgs.length - 5 %> zdjęć</span><% } %>
+      </button>
+      <% }) %>
+    <% } else { %>
+      <div class="scene aspect-[16/9] md:col-span-4 md:row-span-2 md:aspect-auto"><%- art.sceneFor(l) %></div>
+    <% } %>
+  </section>
+</div>
+
+<div class="wrap grid gap-10 pb-16 pt-6 lg:grid-cols-[1fr_360px]">
+  <article class="min-w-0">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div class="min-w-0">
+        <h1 class="font-display text-2xl font-bold leading-snug sm:text-[28px]"><%= l.title %></h1>
+        <p class="mt-1.5 flex items-center gap-1.5 text-muted"><%- icon('map-pin', 'ico-sm') %><span><a href="/miasto/<%= l.city %>" class="hover:text-navy-900 hover:underline"><%= l.cityName %></a><%= l.district ? ', ' + l.district : '' %><%= l.showExactAddress && l.street ? ', ' + l.street : '' %>, woj. <%= l.voivodeship %></span></p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button type="button" data-fav="<%= l._id %>" aria-pressed="<%= isFav %>" class="btn btn-outline btn-sm <%= isFav ? 'text-orange-500' : 'text-navy-800' %>"><%- icon('heart', 'ico-sm', isFav ? 'fill="currentColor"' : '') %><span data-fav-label><%= isFav ? 'Obserwujesz' : 'Obserwuj' %></span></button>
+        <button type="button" data-share class="btn btn-outline btn-sm"><%- icon('link', 'ico-sm') %>Udostępnij</button>
+        <button type="button" data-compare="<%= l.num %>" class="btn btn-outline btn-sm"><%- icon('layers', 'ico-sm') %><span data-compare-label>Porównaj</span></button>
+        <button type="button" data-print class="btn btn-outline btn-sm hidden sm:inline-flex"><%- icon('file', 'ico-sm') %>Drukuj</button>
+      </div>
+    </div>
+
+    <div class="mt-5 flex flex-wrap items-end gap-x-6 gap-y-1 border-y border-line py-4">
+      <p class="font-display text-3xl font-bold num"><%= fmt.price(l.price, l.transaction) %></p>
+      <% if (l.pricePerM2 && l.transaction === 'sprzedaz') { %><p class="text-muted num"><%= fmt.num(l.pricePerM2) %> zł/m²</p><% } %>
+      <% if (rate) { %><a href="/kalkulator-kredytowy?cena=<%= l.price %>" class="text-sm text-teal-600 hover:underline num">Rata od ok. <%= fmt.num(Math.round(rate / 10) * 10) %> zł/mc</a><% } %>
+      <% if (l.negotiable) { %><span class="text-sm text-muted">do negocjacji</span><% } %>
+      <% if (l.priceDrop) { %><span class="rounded-full bg-teal-100 px-2.5 py-1 text-xs font-bold text-teal-700">Cena obniżona o <%= l.priceDrop %>%</span><% } %>
+    </div>
+    <% if (l.priceHistory && l.priceHistory.length > 1) { %>
+    <details class="mt-3 text-sm">
+      <summary class="cursor-pointer font-semibold text-muted hover:text-ink">Historia ceny (<%= l.priceHistory.length %> zmian)</summary>
+      <ul class="mt-2 grid gap-1"><% l.priceHistory.slice().reverse().forEach(function(h, i, arr){ var prev = arr[i + 1]; %><li class="flex justify-between gap-4 rounded-[10px] bg-white px-3 py-2 num"><span><%= fmt.dateShort(h.at) %></span><span class="font-semibold"><%= fmt.price(h.price, l.transaction) %><% if (prev) { var d = Math.round((h.price / prev.price - 1) * 100); %> <span class="<%= d < 0 ? 'text-teal-600' : 'text-orange-600' %>"><%= d > 0 ? '+' : '' %><%= d %>%</span><% } %></span></li><% }) %></ul>
+    </details>
+    <% } %>
+
+    <div class="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <% [['ruler', 'Metraż', l.area ? fmt.num(l.area, l.area % 1 ? 1 : 0) + ' m²' : null], ['door', 'Pokoje', l.rooms], ['layers', 'Piętro', (l.floor !== undefined && l.floor !== null) ? fmt.floorLabel(l.floor, l.floorsTotal) : null], ['banknote', 'Czynsz', l.rentExtra ? fmt.num(l.rentExtra) + ' zł' : null], ['trees', 'Działka', l.plotArea ? fmt.num(l.plotArea) + ' m²' : null], ['calendar', 'Rok budowy', l.yearBuilt]].filter(function(x){ return x[2]; }).slice(0, 4).forEach(function(x){ %>
+      <div class="rounded-[16px] border border-line bg-white p-3.5"><p class="flex items-center gap-1.5 text-xs text-muted"><%- icon(x[0], 'ico-sm text-orange-500') %><%= x[1] %></p><p class="mt-1 font-display text-lg font-bold num" style="letter-spacing:-0.03em"><%= x[2] %></p></div>
+      <% }) %>
+    </div>
+
+    <section class="mt-6">
+      <h2 class="mb-3 font-display text-xl font-bold">Szczegóły ogłoszenia</h2>
+      <dl class="grid overflow-hidden rounded-xl border border-line bg-white sm:grid-cols-2">
+        <% params.forEach(function(p){ %><div class="flex justify-between gap-4 border-b border-line px-4 py-3 text-[15px] sm:odd:border-r"><dt class="text-muted"><%= p[0] %></dt><dd class="text-right font-semibold"><%= p[1] %></dd></div><% }) %>
+      </dl>
+    </section>
+
+    <section class="mt-8">
+      <h2 class="font-display text-xl font-bold">Opis</h2>
+      <div class="prose-me mt-2"><%- fmt.paragraphs(l.description) %></div>
+    </section>
+
+    <% if (l.features && l.features.length) { %>
+    <section class="mt-8">
+      <h2 class="font-display text-xl font-bold">Udogodnienia</h2>
+      <div class="mt-3 grid gap-4 sm:grid-cols-2">
+        <% P.FEATURE_GROUPS.forEach(function(g){ var on = g[1].filter(function(k){ return l.features.indexOf(k) > -1; }); if (!on.length) return; %>
+        <div class="rounded-[16px] border border-line bg-white p-4"><p class="text-[11px] font-bold uppercase tracking-[.14em] text-muted"><%= g[0] %></p>
+          <ul class="mt-2 grid gap-1.5 text-[15px]"><% on.forEach(function(k){ %><li class="flex items-center gap-2"><%- icon('check', 'ico-sm text-orange-500') %><%= featureLabels[k] %></li><% }) %></ul></div>
+        <% }) %>
+      </div>
+    </section>
+    <% } %>
+
+    <% if (ytId || l.virtualTourUrl) { %>
+    <section class="mt-8">
+      <h2 class="font-display text-xl font-bold">Multimedia</h2>
+      <% if (ytId) { %><div class="mt-3 aspect-video overflow-hidden rounded-xl bg-navy-900"><iframe src="https://www.youtube-nocookie.com/embed/<%= ytId %>" title="Wideo oferty" loading="lazy" allowfullscreen class="h-full w-full"></iframe></div><% } %>
+      <% if (l.virtualTourUrl) { %><a href="<%= l.virtualTourUrl %>" target="_blank" rel="noopener" class="btn btn-outline mt-3"><%- icon('compass', 'ico-sm') %>Wirtualny spacer</a><% } %>
+    </section>
+    <% } %>
+
+    <section class="mt-8" id="mapa">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <h2 class="font-display text-xl font-bold">Lokalizacja</h2>
+        <% if (mapPoint.km !== null) { %><p class="text-sm text-muted num"><%= mapPoint.km < 1 ? 'Ok. ' + Math.round(mapPoint.km * 1000 / 50) * 50 + ' m' : 'Ok. ' + fmt.num(mapPoint.km, 1) + ' km' %> od centrum: <%= l.cityName %></p><% } %>
+      </div>
+      <p class="mt-1 flex items-center gap-1.5 text-muted"><%- icon('map-pin', 'ico-sm text-orange-500') %><%= l.showExactAddress && l.street ? l.street + ', ' : '' %><%= l.district ? l.district + ', ' : '' %><%= l.cityName %>, woj. <%= l.voivodeship %></p>
+      <% if (mapPoint.lat) { %>
+      <div class="mt-3 overflow-hidden rounded-[22px] border border-line">
+        <div data-listing-map data-lat="<%= mapPoint.lat %>" data-lng="<%= mapPoint.lng %>" data-precise="<%= mapPoint.precise ? '1' : '0' %>" class="h-[360px] w-full"></div>
+        <div class="flex flex-wrap items-center justify-between gap-2 border-t border-line bg-white px-4 py-2.5 text-sm">
+          <span class="text-muted"><%= mapPoint.precise ? 'Pinezka pokazuje adres nieruchomości.' : 'Ogłoszeniodawca nie podał dokładnego adresu – zaznaczyliśmy okolicę.' %></span>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=<%= mapPoint.lat %>,<%= mapPoint.lng %>" target="_blank" rel="noopener" class="link text-sm">Wyznacz trasę</a>
+        </div>
+      </div>
+      <% } %>
+    </section>
+
+    <div class="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4 text-sm text-muted">
+      <span>Nr oferty <%= l.num %><%= l.refNumber ? ' / ' + l.refNumber : '' %> · dodano <%= fmt.dateShort(l.publishedAt || l.createdAt) %> · <span class="num"><%= fmt.num(l.views) %></span> wyświetleń</span>
+      <details class="relative">
+        <summary class="flex cursor-pointer list-none items-center gap-1 hover:text-navy-900 [&::-webkit-details-marker]:hidden"><%- icon('flag', 'ico-sm') %>Zgłoś ogłoszenie</summary>
+        <form method="post" action="/oferta/<%= l.num %>/zgloszenie" class="absolute bottom-7 right-0 z-20 grid w-72 gap-2 rounded-xl border border-line bg-white p-4 shadow-lift">
+          <input type="hidden" name="_csrf" value="<%= csrf %>">
+          <label class="label" for="rp-reason">Powód</label>
+          <select id="rp-reason" name="reason" class="select text-sm"><option value="oszustwo">Podejrzenie oszustwa</option><option value="nieaktualne">Oferta nieaktualna</option><option value="bledne_dane">Błędne dane</option><option value="duplikat">Duplikat</option><option value="nielegalne">Treść niezgodna z prawem</option><option value="inne">Inne</option></select>
+          <textarea name="details" class="textarea !min-h-[80px] text-sm" placeholder="Opisz problem"></textarea>
+          <button class="btn btn-primary btn-sm">Wyślij</button>
+        </form>
+      </details>
+    </div>
+  </article>
+
+  <aside class="min-w-0">
+    <div id="kontakt" class="sticky top-20 rounded-xl border border-line bg-white p-5">
+      <div class="flex items-center gap-3">
+        <% if (seller.kind === 'agency') { %>
+        <a href="<%= seller.url %>" class="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg border border-line font-display font-bold text-navy-800"><% if (seller.logo) { %><img src="<%= seller.logo %>" alt="" class="h-full w-full object-contain p-1"><% } else { %><%= seller.name.slice(0,2).toUpperCase() %><% } %></a>
+        <div class="min-w-0"><a href="<%= seller.url %>" class="block truncate font-semibold hover:underline"><%= seller.name %></a><p class="text-sm text-muted"><%= seller.person || 'Biuro nieruchomości' %></p></div>
+        <% } else { %>
+        <span class="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-paper text-navy-700"><%- icon('user', 'ico') %></span>
+        <div class="min-w-0"><p class="truncate font-semibold"><%= seller.name %></p><p class="text-sm text-muted">Oferta prywatna</p></div>
+        <% } %>
+      </div>
+      <% if (seller.phone) { %><button type="button" data-phone="<%= l._id %>" class="btn btn-primary mt-4 w-full"><%- icon('phone', 'ico-sm') %><span data-phone-out>Pokaż numer telefonu</span></button><% } %>
+      <form id="formularz-zapytania" method="post" action="/oferta/<%= l.num %>/zapytanie" class="mt-4 grid gap-2.5 border-t border-line pt-4">
+        <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true"><input type="hidden" name="topic" value="oferta">
+        <p class="font-semibold">Napisz wiadomość</p>
+        <input name="name" required class="input" placeholder="Imię" aria-label="Imię" value="<%= user ? user.name : '' %>">
+        <input name="email" type="email" required class="input" placeholder="E-mail" aria-label="E-mail" value="<%= user ? user.email : '' %>">
+        <input name="phone" class="input" placeholder="Telefon (opcjonalnie)" aria-label="Telefon" value="<%= user && user.phone ? user.phone : '' %>">
+        <textarea name="message" required class="textarea !min-h-[100px]" aria-label="Wiadomość">Dzień dobry, jestem zainteresowany/a tą ofertą. Proszę o kontakt.</textarea>
+        <label class="flex items-start gap-2 text-xs text-muted"><input type="checkbox" name="consent" value="1" required class="check mt-0.5">Zgadzam się na przekazanie danych ogłoszeniodawcy. <a href="/polityka-prywatnosci" class="underline">Więcej</a></label>
+        <button class="btn btn-accent w-full">Wyślij wiadomość</button>
+      </form>
+    </div>
+    <% if (adSlots.listing_sidebar) { %><div class="mt-4"><%- include('../partials/ad-slot', { ad: adSlots.listing_sidebar, placement: 'listing_sidebar', shape: 'tile' }) %></div><% } %>
+  </aside>
+</div>
+
+<% if (similar.length) { %>
+<section class="border-t border-line bg-paper py-12">
+  <div class="wrap">
+    <h2 class="h-section">Podobne ogłoszenia</h2>
+    <div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><% similar.forEach(function(s){ %><%- include('../partials/listing-card', { l: s }) %><% }) %></div>
+  </div>
+</section>
+<% } %>
+
+<% if (imgs.length) { %>
+<div id="lightbox" class="fixed inset-0 z-[80] flex items-center justify-center bg-navy-950/95 p-4" hidden data-images='<%- JSON.stringify(imgs.map(function(i){ return i.url; })).replace(/'/g, "&#39;") %>'>
+  <button type="button" class="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white" data-lb-close aria-label="Zamknij"><%- icon('x', 'ico') %></button>
+  <button type="button" class="absolute left-4 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/10 text-white" data-lb-prev aria-label="Poprzednie"><%- icon('chevron-left', 'ico-lg') %></button>
+  <img src="" alt="Zdjęcie oferty" class="max-h-[86vh] max-w-full rounded-lg object-contain" data-lb-img>
+  <button type="button" class="absolute right-4 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/10 text-white" data-lb-next aria-label="Następne"><%- icon('chevron-right', 'ico-lg') %></button>
+  <p class="absolute bottom-5 left-1/2 -translate-x-1/2 text-sm text-white/70 num" data-lb-count></p>
+</div>
+<% } %>
