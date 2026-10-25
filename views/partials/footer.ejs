@@ -1,0 +1,65 @@
+<% var cities = ['gdansk','gdynia','sopot','slupsk','ustka','koszalin','kolobrzeg','szczecin','chojnice','bytow','miastko','lebork']; var hideCta = typeof hideFooterCta !== 'undefined' && hideFooterCta; %>
+<footer class="mt-auto">
+  <% if (!hideCta) { %>
+  <div class="wrap pb-16 pt-6">
+    <div class="relative overflow-hidden rounded-[28px] bg-orange-500 px-7 py-10 sm:px-14 sm:py-14">
+      <svg class="pointer-events-none absolute -right-24 -top-24 h-[360px] w-[360px] text-ink/20" viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="98" fill="none" stroke="currentColor" stroke-dasharray="3 5"/></svg>
+      <div class="relative flex flex-col items-start justify-between gap-7 lg:flex-row lg:items-center">
+        <div>
+          <h2 class="section-title max-w-xl !text-[clamp(30px,4vw,50px)]">Masz nieruchomość na sprzedaż lub wynajem?</h2>
+          <p class="mt-3 text-ink/80">Dodaj ogłoszenie w kilka minut – trafi do kupujących z całego Pomorza.</p>
+        </div>
+        <div class="flex flex-wrap gap-2.5">
+          <a href="/panel/ogloszenia/nowe" class="btn btn-primary btn-lg"><%- icon('plus', 'ico-sm') %>Dodaj ogłoszenie</a>
+          <a href="/zostan-partnerem" class="btn btn-white btn-lg"><%- icon('briefcase', 'ico-sm') %>Dla biur</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% } %>
+  <div class="border-t border-line">
+    <div class="wrap grid gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+      <div>
+        <%- include('logo') %>
+        <p class="mt-4 max-w-xs text-sm leading-relaxed text-muted">Ogłoszenia nieruchomości z województwa pomorskiego i zachodniopomorskiego – od właścicieli, biur i deweloperów.</p>
+        <p class="mt-4 flex items-center gap-2 text-sm font-bold"><%- icon('mail', 'ico-sm text-orange-500') %><span class="select-all"><%= site.contact.email %></span></p>
+        <div class="mt-5 flex gap-2">
+          <% [['facebook','Facebook'],['instagram','Instagram'],['linkedin','LinkedIn'],['tiktok','TikTok'],['youtube','YouTube']].forEach(function(s){ %>
+          <a href="<%= site.socials[s[0]] %>" target="_blank" rel="noopener" aria-label="<%= s[1] %>" class="grid h-10 w-10 place-items-center rounded-[12px] border border-line bg-white text-ink transition hover:-translate-y-0.5 hover:border-orange-400"><%- icon(s[0], 'ico-sm') %></a>
+          <% }) %>
+        </div>
+      </div>
+      <div>
+        <p class="mb-4 text-[11px] font-bold uppercase tracking-[.17em] text-muted">Na sprzedaż</p>
+        <ul class="grid gap-2.5 text-sm"><% cities.slice(0, 6).forEach(function(c){ %><li><a href="/sprzedaz/mieszkania/<%= c %>" class="hover:text-orange-600">Mieszkania <%= cityName(c) %></a></li><% }) %></ul>
+      </div>
+      <div>
+        <p class="mb-4 text-[11px] font-bold uppercase tracking-[.17em] text-muted">Na wynajem</p>
+        <ul class="grid gap-2.5 text-sm"><% cities.slice(6).forEach(function(c){ %><li><a href="/wynajem/mieszkania/<%= c %>" class="hover:text-orange-600">Wynajem <%= cityName(c) %></a></li><% }) %><li><a href="/miasta" class="font-bold hover:text-orange-600">Wszystkie miasta</a></li></ul>
+      </div>
+      <div>
+        <p class="mb-4 text-[11px] font-bold uppercase tracking-[.17em] text-muted">ModulioEstate</p>
+        <ul class="grid gap-2.5 text-sm">
+          <li><a href="/o-nas" class="hover:text-orange-600">O nas</a></li>
+          <li><a href="/zostan-partnerem" class="hover:text-orange-600">Dla biur nieruchomości</a></li>
+          <li><a href="/reklama" class="hover:text-orange-600">Reklama</a></li>
+          <li><a href="/raport-cen" class="hover:text-orange-600">Ceny mieszkań</a></li>
+          <li><a href="/kalkulator-kredytowy" class="hover:text-orange-600">Kalkulator kredytowy</a></li>
+          <li><a href="/poradnik" class="hover:text-orange-600">Poradnik</a></li>
+          <li><a href="/pomoc" class="hover:text-orange-600">Pomoc</a></li>
+          <li><a href="/kontakt" class="hover:text-orange-600">Kontakt</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="wrap flex flex-col gap-3 border-t border-line py-6 text-xs text-muted md:flex-row md:items-center md:justify-between">
+      <p>© <%= new Date().getFullYear() %> <%= site.company.name %>. Wszelkie prawa zastrzeżone.</p>
+      <div class="flex flex-wrap gap-x-5 gap-y-2">
+        <a href="/regulamin" class="hover:text-ink">Regulamin</a>
+        <a href="/polityka-prywatnosci" class="hover:text-ink">Polityka prywatności</a>
+        <a href="/cookies" class="hover:text-ink">Cookies</a>
+        <a href="/mapa-strony" class="hover:text-ink">Mapa strony</a>
+        <a href="/kontakt#zgloszenia" class="hover:text-ink">Zgłoś nielegalne treści</a>
+      </div>
+    </div>
+  </div>
+</footer>

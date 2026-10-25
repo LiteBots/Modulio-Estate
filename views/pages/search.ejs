@@ -1,0 +1,128 @@
+<%
+  var page = f.strona;
+  var priceSteps = transaction === 'wynajem' ? [1000,1500,2000,2500,3000,4000,5000,7000,10000] : [200000,300000,400000,500000,600000,800000,1000000,1500000,2000000,3000000];
+  var sortedCities = function(v){ return LOC.CITIES.filter(function(c){ return c.voivodeship === v; }).sort(function(a,b){ return a.name.localeCompare(b.name, 'pl'); }); };
+  var moreOpen = !!(f.rynek || f.dzielnica || f.cechy.length || f.rok_od || f.pietro_do !== null || f.bez_prowizji || f.ze_zdjeciami || f.q);
+  var featuredIds = result.featured.map(function(x){ return String(x._id); });
+  var rows = result.featured.concat(result.items.filter(function(x){ return featuredIds.indexOf(String(x._id)) === -1; }));
+%>
+<!-- Filtry -->
+<section class="wrap pt-4">
+  <form method="get" action="/szukaj" class="rounded-[22px] border border-line bg-white p-3 shadow-soft">
+    <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1.2fr_1.5fr_1.3fr_0.8fr_auto]">
+      <select name="transakcja" class="select" aria-label="Transakcja"><option value="sprzedaz" <%= transaction === 'sprzedaz' ? 'selected' : '' %>>Na sprzedaż</option><option value="wynajem" <%= transaction === 'wynajem' ? 'selected' : '' %>>Na wynajem</option></select>
+      <select name="typ" class="select" aria-label="Rodzaj"><option value="">Wszystkie rodzaje</option><% P.TYPES.forEach(function(t){ %><option value="<%= t.key %>" <%= f.type && f.type.key === t.key ? 'selected' : '' %>><%= t.plural %></option><% }) %></select>
+      <select name="lokalizacja" class="select" aria-label="Lokalizacja">
+        <option value="">Cały region</option>
+        <option value="trojmiasto" <%= locationSlug === 'trojmiasto' ? 'selected' : '' %>>Trójmiasto</option>
+        <option value="pomorskie" <%= locationSlug === 'pomorskie' ? 'selected' : '' %>>Województwo pomorskie</option>
+        <option value="zachodniopomorskie" <%= locationSlug === 'zachodniopomorskie' ? 'selected' : '' %>>Województwo zachodniopomorskie</option>
+        <optgroup label="Pomorskie"><% sortedCities('pomorskie').forEach(function(c){ %><option value="<%= c.slug %>" <%= locationSlug === c.slug ? 'selected' : '' %>><%= c.name %></option><% }) %></optgroup>
+        <optgroup label="Zachodniopomorskie"><% sortedCities('zachodniopomorskie').forEach(function(c){ %><option value="<%= c.slug %>" <%= locationSlug === c.slug ? 'selected' : '' %>><%= c.name %></option><% }) %></optgroup>
+      </select>
+      <div class="grid grid-cols-2 gap-2">
+        <input name="cena_od" inputmode="numeric" class="input num" placeholder="Cena od" aria-label="Cena od" value="<%= f.cena_od !== null ? f.cena_od : '' %>">
+        <select name="cena_do" class="select num" aria-label="Cena do"><option value="">do</option><% priceSteps.forEach(function(v){ %><option value="<%= v %>" <%= f.cena_do === v ? 'selected' : '' %>><%= fmt.shortPrice(v) %></option><% }) %></select>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <input name="pow_od" inputmode="numeric" class="input num" placeholder="m² od" aria-label="Powierzchnia od" value="<%= f.pow_od !== null ? f.pow_od : '' %>">
+        <input name="pow_do" inputmode="numeric" class="input num" placeholder="m² do" aria-label="Powierzchnia do" value="<%= f.pow_do !== null ? f.pow_do : '' %>">
+      </div>
+      <select name="pokoje_od" class="select" aria-label="Pokoje"><option value="">Pokoje</option><% [1,2,3,4,5].forEach(function(n){ %><option value="<%= n %>" <%= f.pokoje_od === n ? 'selected' : '' %>><%= n %>+</option><% }) %></select>
+      <button class="btn btn-accent"><%- icon('search', 'ico-sm') %>Szukaj</button>
+    </div>
+    <details class="mt-3" <%= moreOpen ? 'open' : '' %>>
+      <summary class="inline-flex cursor-pointer list-none items-center gap-1.5 text-sm font-bold text-ink underline decoration-orange-500 decoration-2 underline-offset-4 [&::-webkit-details-marker]:hidden"><%- icon('filter', 'ico-sm') %>Więcej filtrów</summary>
+      <div class="mt-3 grid gap-4 rounded-xl border border-line bg-white p-4 md:grid-cols-4">
+        <label class="block"><span class="label">Rynek</span><select name="rynek" class="select"><option value="">Pierwotny i wtórny</option><option value="pierwotny" <%= f.rynek === 'pierwotny' ? 'selected' : '' %>>Pierwotny</option><option value="wtorny" <%= f.rynek === 'wtorny' ? 'selected' : '' %>>Wtórny</option></select></label>
+        <% if (f.location && f.location.districts && f.location.districts.length) { %>
+        <label class="block"><span class="label">Dzielnica</span><select name="dzielnica" class="select"><option value="">Wszystkie</option><% f.location.districts.forEach(function(d){ %><option <%= f.dzielnica === d ? 'selected' : '' %>><%= d %></option><% }) %></select></label>
+        <% } %>
+        <label class="block"><span class="label">Rok budowy od</span><input name="rok_od" inputmode="numeric" class="input" value="<%= f.rok_od || '' %>"></label>
+        <label class="block"><span class="label">Piętro do</span><input name="pietro_do" inputmode="numeric" class="input" value="<%= f.pietro_do !== null ? f.pietro_do : '' %>"></label>
+        <label class="block"><span class="label">Słowa kluczowe</span><input name="q" class="input" placeholder="np. balkon, Wrzeszcz" value="<%= f.q %>"></label>
+        <div class="md:col-span-4">
+          <span class="label">Udogodnienia</span>
+          <div class="flex flex-wrap gap-2">
+            <% P.FEATURES.slice(0, 12).forEach(function(ft){ %><label class="chip cursor-pointer has-[:checked]:border-navy-800 has-[:checked]:bg-navy-800 has-[:checked]:text-white"><input type="checkbox" name="cechy" value="<%= ft[0] %>" class="sr-only" <%= f.cechy.includes(ft[0]) ? 'checked' : '' %>><%= ft[1] %></label><% }) %>
+            <label class="chip cursor-pointer has-[:checked]:border-navy-800 has-[:checked]:bg-navy-800 has-[:checked]:text-white"><input type="checkbox" name="bez_prowizji" value="1" class="sr-only" <%= f.bez_prowizji ? 'checked' : '' %>>Bez prowizji</label>
+            <label class="chip cursor-pointer has-[:checked]:border-navy-800 has-[:checked]:bg-navy-800 has-[:checked]:text-white"><input type="checkbox" name="ze_zdjeciami" value="1" class="sr-only" <%= f.ze_zdjeciami ? 'checked' : '' %>>Ze zdjęciami</label>
+          </div>
+        </div>
+      </div>
+    </details>
+  </form>
+</section>
+
+<div class="wrap py-6">
+  <%- include('../partials/breadcrumbs') %>
+  <div class="mt-3 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+    <div class="min-w-0">
+      <h1 class="font-display text-2xl font-bold sm:text-[28px]"><%= h.h1 %></h1>
+      <p class="mt-1 text-muted"><span class="num"><%= fmt.num(result.total) %></span> <%= fmt.plural(result.total, 'ogłoszenie', 'ogłoszenia', 'ogłoszeń') %></p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <form method="post" action="/panel/wyszukiwania">
+        <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="url" value="<%= saveUrl %>"><input type="hidden" name="name" value="<%= h.h1 %>">
+        <button class="btn btn-outline"><%- icon('bell', 'ico-sm') %>Zapisz wyszukiwanie</button>
+      </form>
+      <form method="get" action="<%= basePath %>" data-autosubmit>
+        <% Object.keys(query).forEach(function(k){ if (k !== 'sort' && k !== 'strona') { [].concat(query[k]).forEach(function(v){ %><input type="hidden" name="<%= k %>" value="<%= v %>"><% }) } }) %>
+        <label for="sort" class="sr-only">Sortowanie</label>
+        <select id="sort" name="sort" class="select !w-auto">
+          <option value="najnowsze" <%= f.sort === 'najnowsze' ? 'selected' : '' %>>Najnowsze</option>
+          <option value="cena_rosnaco" <%= f.sort === 'cena_rosnaco' ? 'selected' : '' %>>Najtańsze</option>
+          <option value="cena_malejaco" <%= f.sort === 'cena_malejaco' ? 'selected' : '' %>>Najdroższe</option>
+          <option value="cena_m2" <%= f.sort === 'cena_m2' ? 'selected' : '' %>>Najniższa cena za m²</option>
+          <option value="powierzchnia" <%= f.sort === 'powierzchnia' ? 'selected' : '' %>>Największe</option>
+        </select>
+      </form>
+    </div>
+  </div>
+
+  <div class="mt-6 grid gap-8 lg:grid-cols-[1fr_300px]">
+    <div class="min-w-0">
+      <% if (adSlots.search_top) { %><div class="mb-4"><%- include('../partials/ad-slot', { ad: adSlots.search_top, placement: 'search_top' }) %></div><% } %>
+      <% if (rows.length) { %>
+      <div class="grid gap-4">
+        <% rows.forEach(function(l, i){ %>
+          <%- include('../partials/listing-row', { l: l }) %>
+          <% if (i === 5 && adSlots.search_inline) { %><%- include('../partials/ad-slot', { ad: adSlots.search_inline, placement: 'search_inline' }) %><% } %>
+        <% }) %>
+      </div>
+      <%- include('../partials/pagination', { pages: result.pages, page: page, href: function(p){ return basePath + qs({ strona: p }); } }) %>
+      <% } else { %>
+      <div class="rounded-xl border border-line p-10 text-center">
+        <h2 class="font-display text-xl font-bold">Brak ogłoszeń dla tych kryteriów</h2>
+        <p class="mt-2 text-muted">Zmień filtry albo zapisz wyszukiwanie – damy znać, gdy pojawi się pasująca oferta.</p>
+        <a href="/<%= transaction %>/<%= typeSlug %>" class="btn btn-primary mt-5">Szukaj w całym regionie</a>
+      </div>
+      <% } %>
+    </div>
+
+    <aside class="grid content-start gap-4">
+      <div class="rounded-xl border border-line p-5">
+        <p class="font-semibold">Powiadomienia o nowych ofertach</p>
+        <p class="mt-1 text-sm text-muted">Zapisz to wyszukiwanie, a wyślemy e-mail, gdy pojawi się nowe ogłoszenie.</p>
+        <form method="post" action="/panel/wyszukiwania" class="mt-3"><input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="url" value="<%= saveUrl %>"><input type="hidden" name="name" value="<%= h.h1 %>"><button class="btn btn-primary w-full"><%- icon('bell', 'ico-sm') %>Włącz powiadomienia</button></form>
+      </div>
+      <div class="rounded-xl border border-line p-5">
+        <p class="font-semibold">Pozostałe rodzaje</p>
+        <ul class="mt-2 grid gap-1.5 text-sm">
+          <% P.TYPES.forEach(function(t){ if (t.slug !== typeSlug) { %><li><a href="/<%= transaction %>/<%= t.slug %><%= locationSlug ? '/' + locationSlug : '' %>" class="text-navy-600 hover:text-orange-600"><%= t[transaction === 'wynajem' ? 'rent' : 'sale'] %></a></li><% } }) %>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <% if (intro || cityLinks.length) { %>
+  <section class="mt-14 border-t border-line pt-8 text-sm text-muted">
+    <% if (intro) { %><p class="max-w-4xl leading-relaxed"><%= intro %></p><% } %>
+    <% if (coastalNote) { %><p class="mt-2 max-w-4xl"><%= coastalNote %></p><% } %>
+    <p class="mt-5 font-semibold text-navy-900"><%= (f.type || P.ALL_TYPE)[transaction === 'wynajem' ? 'rent' : 'sale'] %> w innych miejscowościach</p>
+    <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1.5">
+      <% cityLinks.forEach(function(c){ %><a href="/<%= transaction %>/<%= typeSlug %>/<%= c.slug %>" class="hover:text-navy-900 hover:underline"><%= c.name %></a><% }) %>
+    </div>
+  </section>
+  <% } %>
+</div>

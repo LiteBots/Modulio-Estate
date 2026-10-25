@@ -1,0 +1,36 @@
+<section class="wrap py-8">
+  <%- include('../partials/breadcrumbs') %>
+  <h1 class="mt-4 font-display text-4xl font-extrabold tracking-tight">Raport cen nieruchomości</h1>
+  <p class="mt-2 max-w-3xl text-muted">Średnie ceny ofertowe w województwie pomorskim i zachodniopomorskim, liczone na bieżąco z aktywnych ogłoszeń w ModulioEstate. To ceny ofertowe, nie transakcyjne – traktuj je jako punkt odniesienia.</p>
+</section>
+<section class="wrap grid gap-6 pb-10 lg:grid-cols-[1.4fr_1fr]">
+  <div class="card card-pad min-w-0">
+    <div class="flex flex-wrap items-center justify-between gap-3"><h2 class="font-display text-xl font-bold">Średnia cena m² mieszkań (12 mies.)</h2>
+      <div class="flex gap-3 text-sm"><span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-navy-800"></span>Pomorskie</span><span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-orange-500"></span>Zachodniopomorskie</span></div></div>
+    <div class="mt-4 overflow-x-auto"><div class="min-w-[520px]"><%- chart %></div></div>
+  </div>
+  <div class="card card-pad">
+    <h2 class="font-display text-xl font-bold">Jak liczymy?</h2>
+    <ul class="mt-3 grid gap-2 text-sm text-muted">
+      <li class="flex gap-2"><%- icon('check', 'ico-sm text-teal-500 mt-0.5') %>Cena za m² to średnia z aktywnych ogłoszeń mieszkań na sprzedaż.</li>
+      <li class="flex gap-2"><%- icon('check', 'ico-sm text-teal-500 mt-0.5') %>Najem – średni miesięczny czynsz z ogłoszeń mieszkań do wynajęcia.</li>
+      <li class="flex gap-2"><%- icon('check', 'ico-sm text-teal-500 mt-0.5') %>Dane aktualizują się automatycznie po każdej publikacji.</li>
+    </ul>
+    <a href="/kalkulator-kredytowy" class="btn btn-outline mt-5 w-full"><%- icon('calculator', 'ico-sm') %>Policz ratę kredytu</a>
+  </div>
+</section>
+<section class="wrap pb-16">
+  <div class="card overflow-hidden">
+    <div class="table-wrap">
+      <table class="table num">
+        <thead><tr><th>Miejscowość</th><th>Województwo</th><th class="!text-right">Ogłoszenia</th><th class="!text-right">Śr. cena m²</th><th class="!text-right">Śr. najem mieszkania</th><th></th></tr></thead>
+        <tbody>
+          <% rows.forEach(function(r){ %>
+          <tr><td class="font-semibold"><a href="/miasto/<%= r._id %>" class="hover:text-orange-600"><%= r.cityName %></a></td><td class="text-muted"><%= r.voivodeship %></td><td class="text-right"><%= r.count %></td><td class="text-right font-semibold"><%= r.avgM2 ? fmt.num(Math.round(r.avgM2 / 10) * 10) + ' zł' : '–' %></td><td class="text-right"><%= r.avgRent ? fmt.num(Math.round(r.avgRent / 10) * 10) + ' zł' : '–' %></td><td class="text-right"><a href="/sprzedaz/mieszkania/<%= r._id %>" class="text-sm font-bold text-ink underline decoration-orange-500 decoration-2 underline-offset-4">Oferty</a></td></tr>
+          <% }) %>
+          <% if (!rows.length) { %><tr><td colspan="6" class="py-10 text-center text-muted">Raport pojawi się po opublikowaniu pierwszych ogłoszeń.</td></tr><% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

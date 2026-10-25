@@ -1,0 +1,7 @@
+<%
+  var parts = [];
+  if (l.rooms) parts.push(l.rooms + ' ' + fmt.plural(l.rooms, 'pokój', 'pokoje', 'pokoi'));
+  if (l.area) parts.push(fmt.num(l.area, l.area % 1 ? 1 : 0) + ' m²');
+  if ((l.type === 'mieszkanie' || l.type === 'biuro') && l.floor !== undefined && l.floor !== null) parts.push(l.floor === 0 ? 'parter' : l.floor + ' piętro');
+  if (l.type === 'dom' && l.plotArea) parts.push('działka ' + fmt.num(l.plotArea) + ' m²');
+%><%= parts.join(' · ') %>

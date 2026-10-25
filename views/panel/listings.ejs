@@ -1,0 +1,37 @@
+<% if (listings.length) { %>
+<div class="mb-4 flex flex-wrap items-center justify-between gap-2"><h2 class="font-display text-xl font-bold">Moje ogłoszenia</h2><p class="text-sm text-muted">Możesz mieć do <%= limit %> aktywnych ogłoszeń. Każde jest widoczne 60 dni.</p></div>
+<div class="grid gap-3">
+  <% listings.forEach(function(l){ %>
+  <div class="flex flex-col gap-4 rounded-xl border border-line p-4 sm:flex-row sm:items-center">
+    <a href="<%= l.url %>" class="scene h-24 w-full shrink-0 overflow-hidden rounded-lg sm:w-36"><% if (l.images && l.images[0]) { %><img src="<%= l.images[0].url %>" alt=""><% } else { %><%- art.sceneFor(l) %><% } %></a>
+    <div class="min-w-0 flex-1">
+      <div class="flex flex-wrap items-center gap-2"><%- include('../partials/status-badge', { s: l.status }) %><% if (l.expiresAt && l.status === 'active') { %><span class="text-xs text-muted">widoczne do <%= fmt.dateShort(l.expiresAt) %></span><% } %></div>
+      <a href="<%= l.url %>" class="mt-1 block truncate font-semibold hover:text-orange-600"><%= l.title %></a>
+      <p class="text-sm text-muted num"><%= fmt.price(l.price, l.transaction) %> · <%= l.cityName %></p>
+      <p class="mt-1 text-sm text-muted num"><%= fmt.num(l.views) %> wyświetleń · <%= l.inquiriesCount %> wiadomości · <%= l.favoritesCount %> obserwujących</p>
+      <% if (l.status === 'blocked' && l.moderationNote) { %><p class="mt-1 text-sm text-red-700">Zablokowane: <%= l.moderationNote %></p><% } %>
+    </div>
+    <form method="post" action="/panel/ogloszenia/<%= l._id %>/status" class="flex shrink-0 gap-2">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <% if (l.status === 'draft' || l.status === 'archived') { %><button name="action" value="<%= l.status === 'archived' ? 'extend' : 'publish' %>" class="btn btn-accent btn-sm">Opublikuj</button><% } %>
+      <a href="/panel/ogloszenia/<%= l._id %>/edytuj" class="btn btn-outline btn-sm">Edytuj</a>
+      <details class="relative" data-dropdown>
+        <summary class="btn btn-outline btn-sm list-none [&::-webkit-details-marker]:hidden" aria-label="Więcej">Więcej <%- icon('chevron-down', 'ico-sm') %></summary>
+        <div class="absolute right-0 z-20 mt-1 grid w-56 gap-0.5 rounded-xl border border-line bg-white p-1.5 shadow-lift">
+          <% if (l.status === 'active') { %><button name="action" value="extend" class="side-link text-sm">Przedłuż o 60 dni</button><button name="action" value="reserved" class="side-link text-sm">Oznacz jako zarezerwowane</button><% } %>
+          <% if (['active','reserved'].includes(l.status)) { %><button name="action" value="sold" class="side-link text-sm">Sprzedane / wynajęte</button><button name="action" value="archived" class="side-link text-sm">Ukryj ogłoszenie</button><% } %>
+          <button name="action" value="delete" class="side-link text-sm text-red-600" data-confirm="Usunąć ogłoszenie na stałe?">Usuń</button>
+        </div>
+      </details>
+    </form>
+  </div>
+  <% }) %>
+</div>
+<% } else { %>
+<div class="mx-auto max-w-xl rounded-xl border border-line p-8 text-center">
+  <span class="mx-auto grid h-14 w-14 place-items-center rounded-full bg-teal-50 text-teal-600"><%- icon('home', 'ico-lg') %></span>
+  <h2 class="mt-4 font-display text-xl font-bold">Nie masz jeszcze ogłoszeń</h2>
+  <p class="mt-2 text-muted">Sprzedajesz lub wynajmujesz mieszkanie, dom albo działkę? Dodanie ogłoszenia zajmuje kilka minut.</p>
+  <a href="/panel/ogloszenia/nowe" class="btn btn-accent mt-5">Dodaj ogłoszenie</a>
+</div>
+<% } %>

@@ -1,0 +1,20 @@
+<%
+  var img = l.images && l.images[0] ? l.images[0].url : null;
+  var fav = favIds.has(String(l._id));
+  var badge = l.isFeatured ? ['Wyróżnione', 'bg-orange-500 text-ink'] : l.market === 'pierwotny' ? ['Rynek pierwotny', 'bg-white text-navy-800'] : l.noCommission ? ['Bez prowizji', 'bg-white text-navy-800'] : null;
+%>
+<article class="group relative flex flex-col overflow-hidden rounded-[22px] border border-line bg-white p-2 transition duration-300 hover:-translate-y-1 hover:shadow-lift">
+  <div class="scene relative aspect-[4/3] overflow-hidden rounded-[16px]">
+    <% if (img) { %><img src="<%= img %>" alt="<%= l.title %>" loading="lazy"><% } else { %><%- art.sceneFor(l) %><% } %>
+    <% if (badge) { %><span class="absolute left-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-bold <%= badge[1] %>"><%= badge[0] %></span><% } %>
+  </div>
+  <button type="button" data-fav="<%= l._id %>" aria-pressed="<%= fav %>" aria-label="<%= fav ? 'Usuń z obserwowanych' : 'Obserwuj' %>" class="absolute right-4 top-4 z-10 grid h-9 w-9 place-items-center rounded-full bg-white/95 shadow-sm transition hover:text-orange-500 <%= fav ? 'text-orange-500' : 'text-navy-800' %>">
+    <%- icon('heart', 'ico-sm', fav ? 'fill="currentColor"' : '') %>
+  </button>
+  <div class="flex flex-1 flex-col px-2.5 pb-2.5 pt-3.5">
+    <p class="font-display text-xl font-bold num" style="letter-spacing:-0.04em"><%= fmt.price(l.price, l.transaction) %></p>
+    <h3 class="mt-1 line-clamp-2 text-[15px] font-medium leading-snug text-navy-900"><a href="<%= l.url %>" class="after:absolute after:inset-0 after:content-['']"><%= l.title %></a></h3>
+    <p class="mt-1 truncate text-sm text-muted"><%= l.cityName %><%= l.district ? ', ' + l.district : '' %></p>
+    <p class="mt-3 text-sm text-navy-700 num"><%- include('listing-params', { l: l }) %></p>
+  </div>
+</article>

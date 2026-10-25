@@ -1,0 +1,18 @@
+<% var shape = typeof shape !== 'undefined' ? shape : 'banner'; %>
+<% if (ad) { %>
+<a href="/r/<%= ad._id %>" rel="sponsored noopener" target="_blank" class="group relative block overflow-hidden rounded-xl border border-line bg-white <%= shape === 'tile' ? 'h-full min-h-[300px]' : '' %>">
+  <span class="absolute right-2 top-2 z-10 rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted">Reklama</span>
+  <% if (ad.image) { %>
+  <picture>
+    <% if (ad.imageMobile) { %><source media="(max-width: 640px)" srcset="<%= ad.imageMobile %>"><% } %>
+    <img src="<%= ad.image %>" alt="<%= ad.headline || ad.name %>" loading="lazy" class="h-full w-full object-cover">
+  </picture>
+  <% } else { %>
+  <div class="flex h-full flex-col justify-center gap-1.5 bg-navy-800 p-6 text-white">
+    <p class="font-display text-xl font-bold"><%= ad.headline || ad.name %></p>
+    <% if (ad.text) { %><p class="text-white/80"><%= ad.text %></p><% } %>
+    <% if (ad.cta) { %><span class="btn btn-white btn-sm mt-2 w-fit"><%= ad.cta %></span><% } %>
+  </div>
+  <% } %>
+</a>
+<% } %>

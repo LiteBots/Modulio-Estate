@@ -1,0 +1,16 @@
+<article class="wrap grid gap-10 py-8 lg:grid-cols-[1fr_340px]">
+  <div class="min-w-0">
+    <%- include('../partials/breadcrumbs') %>
+    <div class="mt-4 flex items-center gap-2"><span class="badge tone-teal"><%= a.category %></span><span class="text-sm text-muted"><%= fmt.date(a.date) %> · <%= a.readMin %> min czytania</span></div>
+    <h1 class="mt-3 font-display text-4xl font-extrabold leading-tight tracking-tight"><%= a.title %></h1>
+    <p class="mt-4 text-lg text-muted"><%= a.excerpt %></p>
+    <div class="scene mt-8 aspect-[21/9] overflow-hidden rounded-xl"><%- art.scene(a.scene[0], a.scene[1], a.scene[2]) %></div>
+    <div class="prose-me mt-8 max-w-[68ch]"><%- a.body %></div>
+    <p class="mt-8 rounded-2xl bg-sand p-4 text-sm text-muted">Artykuł ma charakter informacyjny i nie stanowi porady prawnej ani podatkowej. W indywidualnych sprawach skonsultuj się z notariuszem, doradcą podatkowym lub prawnikiem.</p>
+  </div>
+  <aside class="grid content-start gap-4">
+    <div class="card card-pad"><p class="font-display text-lg font-bold">Szukasz nieruchomości?</p><p class="mt-1 text-sm text-muted">Oferty z Pomorza i Pomorza Zachodniego.</p><div class="mt-4 grid gap-2"><a href="/sprzedaz/mieszkania" class="btn btn-primary">Mieszkania na sprzedaż</a><a href="/wynajem/mieszkania" class="btn btn-outline">Mieszkania na wynajem</a></div></div>
+    <%- include('../partials/ad-slot', { ad: adSlots.guide_sidebar, placement: 'guide_sidebar', shape: 'tile' }) %>
+    <div class="card card-pad"><p class="font-display text-lg font-bold">Czytaj także</p><ul class="mt-3 grid gap-3"><% more.forEach(function(m){ %><li><a href="/poradnik/<%= m.slug %>" class="font-semibold leading-snug hover:text-orange-600"><%= m.title %></a></li><% }) %></ul></div>
+  </aside>
+</article>

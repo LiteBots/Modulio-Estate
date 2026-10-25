@@ -1,0 +1,23 @@
+<form action="/szukaj" method="get" class="w-full rounded-[22px] border border-line bg-white p-3 shadow-lift" data-hero-search>
+  <input type="hidden" name="transakcja" value="sprzedaz" data-hs-tr>
+  <input type="hidden" name="rynek" value="" data-hs-market disabled>
+  <div class="mb-3 inline-flex rounded-[14px] bg-paper p-1" role="tablist">
+    <button type="button" class="rounded-[11px] bg-white px-5 py-2 text-sm font-bold text-ink shadow-soft" data-hs-tab="sprzedaz" aria-selected="true">Kupno</button>
+    <button type="button" class="rounded-[11px] px-5 py-2 text-sm font-bold text-muted" data-hs-tab="wynajem" aria-selected="false">Wynajem</button>
+  </div>
+  <div class="grid gap-2 md:grid-cols-[1fr_1.35fr_1fr_auto]">
+    <label class="block rounded-[14px] border border-line px-3.5 py-2"><span class="block text-[10px] font-bold uppercase tracking-[.14em] text-muted">Rodzaj</span>
+      <select name="typ" class="w-full cursor-pointer bg-transparent font-bold outline-none" data-hs-type>
+        <% P.TYPES.forEach(function(t){ %><option value="<%= t.key %>" <%= t.key === 'mieszkanie' ? 'selected' : '' %>><%= t.plural %></option><% }) %>
+        <option value="">Wszystkie</option>
+      </select></label>
+    <label class="block rounded-[14px] border border-line px-3.5 py-2"><span class="block text-[10px] font-bold uppercase tracking-[.14em] text-muted">Lokalizacja</span>
+      <input name="q" list="cityList" autocomplete="off" placeholder="np. Słupsk, Gdynia Orłowo" class="w-full bg-transparent font-bold outline-none placeholder:font-normal placeholder:text-navy-400"></label>
+    <label class="block rounded-[14px] border border-line px-3.5 py-2"><span class="block text-[10px] font-bold uppercase tracking-[.14em] text-muted" data-hs-price-label>Cena do</span>
+      <select name="cena_do" class="w-full cursor-pointer bg-transparent font-bold outline-none num" data-hs-price data-sale="300000,400000,500000,700000,900000,1200000,1500000,2000000" data-rent="1500,2000,2500,3000,4000,5000,7000">
+        <option value="">Dowolna</option><% [300000,400000,500000,700000,900000,1200000,1500000,2000000].forEach(function(v){ %><option value="<%= v %>"><%= fmt.shortPrice(v) %> zł</option><% }) %>
+      </select></label>
+    <button class="btn btn-accent btn-lg"><%- icon('search', 'ico-sm') %>Szukaj</button>
+  </div>
+  <datalist id="cityList"><option value="Trójmiasto"></option><% LOC.CITIES.forEach(function(c){ %><option value="<%= c.name %>"></option><% }) %></datalist>
+</form>
