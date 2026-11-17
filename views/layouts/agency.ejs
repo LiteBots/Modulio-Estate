@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pl">
+<head><%- include('../partials/head') %></head>
+<body class="min-h-screen bg-paper">
+<%- include('../partials/dash-top', { area: 'Panel biura' }) %>
+<%
+  var mgr = ['owner','manager'].includes(agencyRole);
+  var head = '<a href="/biuro/' + agency.slug + '" target="_blank" class="mb-5 flex items-center gap-3 rounded-2xl bg-paper p-3 hover:bg-navy-50"><span class="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-xl bg-white font-display font-bold text-navy-800">' + (agency.logo ? '<img src="' + agency.logo + '" alt="" class="h-full w-full object-contain p-1">' : fmt.escapeHtml(agency.name.slice(0,2).toUpperCase())) + '</span><span class="min-w-0"><span class="block truncate font-semibold">' + fmt.escapeHtml(agency.name) + '</span><span class="text-xs text-muted">' + (agencyRole === 'owner' ? 'Właściciel' : agencyRole === 'manager' ? 'Manager' : 'Agent') + ' · podgląd strony</span></span></a>';
+  var items = [
+    { href: '/biuro-panel', label: 'Pulpit', icon: 'dashboard', exact: true },
+    { href: '/biuro-panel/ogloszenia', label: 'Ogłoszenia', icon: 'list' },
+    { href: '/biuro-panel/ogloszenia/nowe', label: 'Dodaj ogłoszenie', icon: 'plus', exact: true },
+    { href: '/biuro-panel/zapytania', label: 'Zapytania (CRM)', icon: 'inbox', badge: newLeads || '' },
+    { href: '/biuro-panel/statystyki', label: 'Statystyki', icon: 'chart' },
+    { sep: 'Biuro' },
+    { href: '/biuro-panel/zespol', label: 'Zespół', icon: 'users' }
+  ];
+  if (mgr) items.push({ href: '/biuro-panel/profil', label: 'Profil biura', icon: 'edit' }, { href: '/biuro-panel/strona', label: 'Strona biura', icon: 'layout', lock: !agency.plan.microsite });
+  items.push({ href: '/biuro-panel/import', label: 'Import XML', icon: 'upload', lock: !agency.plan.xmlImport }, { href: '/biuro-panel/wspolpraca', label: 'Współpraca i limity', icon: 'handshake' });
+%>
+<div class="lg:grid lg:grid-cols-[18rem_1fr]">
+  <%- include('../partials/dash-side', { items: items, sideHead: head }) %>
+  <main class="min-w-0 px-4 py-6 lg:px-8 lg:py-8">
+    <%- include('../partials/flash') %>
+    <%- body %>
+  </main>
+</div>
+<div id="toast" class="fixed left-1/2 z-[70] flex -translate-x-1/2 items-center gap-2 rounded-full bg-navy-900 px-5 py-3 text-sm font-medium text-white shadow-lift" style="bottom: calc(24px + env(safe-area-inset-bottom, 0px))" hidden></div>
+<%- include('../partials/map-assets') %>
+<script src="/js/app.js?v=<%= assetV.js %>" defer></script>
+</body>
+</html>

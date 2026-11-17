@@ -1,0 +1,14 @@
+<%- include('../partials/auth-shell-start') %>
+  <h1 class="font-display text-3xl font-bold">Ustaw nowe hasło</h1>
+  <% if (!valid) { %>
+  <div class="alert alert-error mt-6"><%- icon('alert', 'ico mt-px') %><span>Link jest nieważny lub wygasł.</span></div>
+  <a href="/zapomnialem-hasla" class="btn btn-primary mt-6">Wyślij nowy link</a>
+  <% } else { %>
+  <form method="post" action="/reset-hasla/<%= token %>" class="mt-8 grid gap-4">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div><label class="label" for="password">Nowe hasło</label><input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required class="input"><p class="hint">Min. 8 znaków, w tym cyfra.</p></div>
+    <div><label class="label" for="password2">Powtórz hasło</label><input id="password2" name="password2" type="password" autocomplete="new-password" required class="input"></div>
+    <button class="btn btn-primary btn-lg w-full">Zapisz hasło</button>
+  </form>
+  <% } %>
+<%- include('../partials/auth-shell-end') %>

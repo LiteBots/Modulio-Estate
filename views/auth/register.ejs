@@ -1,0 +1,19 @@
+<%- include('../partials/auth-shell-start') %>
+  <div class="mb-8 grid grid-cols-2 rounded-[14px] bg-white p-1 ring-1 ring-line"><a href="/logowanie" class="py-2 text-center text-sm font-bold text-muted hover:text-ink">Logowanie</a><span class="rounded-[11px] bg-paper py-2 text-center text-sm font-bold shadow-soft">Załóż konto</span></div>
+  <h1 class="font-display text-3xl font-bold" style="letter-spacing:-0.05em">Załóż konto</h1>
+  <p class="mt-2 text-muted">Bezpłatnie – e-mailem lub przez Google.</p>
+  <% if (typeof errors !== 'undefined' && errors.length) { %><div class="alert alert-error mt-6"><%- icon('alert', 'ico mt-px') %><ul class="grid gap-1"><% errors.forEach(function(e){ %><li><%= e %></li><% }) %></ul></div><% } %>
+  <div class="mt-8"><%- include('../partials/google-btn') %></div>
+  <form method="post" action="/rejestracja" class="grid gap-4 <%= googleEnabled ? '' : 'mt-8' %>">
+    <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true">
+    <div><label class="label" for="name">Imię i nazwisko</label><input id="name" name="name" autocomplete="name" required class="input" value="<%= form.name || '' %>"></div>
+    <div><label class="label" for="email">E-mail</label><input id="email" name="email" type="email" autocomplete="email" required class="input" value="<%= form.email || '' %>"></div>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div><label class="label" for="password">Hasło</label><input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required class="input"><p class="hint">Min. 8 znaków, w tym cyfra.</p></div>
+      <div><label class="label" for="password2">Powtórz hasło</label><input id="password2" name="password2" type="password" autocomplete="new-password" required class="input"></div>
+    </div>
+    <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="terms" value="1" required class="check mt-0.5">Akceptuję <a href="/regulamin" target="_blank" class="font-semibold underline">regulamin</a> i <a href="/polityka-prywatnosci" target="_blank" class="font-semibold underline">politykę prywatności</a>.</label>
+    <label class="flex items-start gap-2 text-sm text-muted"><input type="checkbox" name="marketing" value="1" class="check mt-0.5">Chcę otrzymywać informacje o nowościach w serwisie (opcjonalnie).</label>
+    <button class="btn btn-accent btn-lg w-full">Załóż konto</button>
+  </form>
+<%- include('../partials/auth-shell-end') %>

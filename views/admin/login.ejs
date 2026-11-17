@@ -1,0 +1,23 @@
+<section class="wrap py-10 sm:py-16">
+  <div class="mx-auto grid max-w-4xl overflow-hidden rounded-[28px] border border-line bg-paper shadow-lift md:grid-cols-[1fr_1.1fr]">
+    <aside class="dark-band relative hidden flex-col justify-between gap-10 p-10 text-white md:flex">
+      <%- include('../partials/logo', { dark: true }) %>
+      <div>
+        <p class="eyebrow !text-white/60">Administracja</p>
+        <p class="section-title mt-4 !text-[40px] !text-white">Cała platforma<br><span class="serif-accent text-white/70">w jednym panelu.</span></p>
+      </div>
+      <p class="flex items-center gap-2 text-xs text-white/50"><%- icon('lock', 'ico-sm text-orange-400') %>Dostęp tylko z kodem ADMIN_PIN</p>
+    </aside>
+    <div class="p-6 sm:p-10 lg:p-12">
+      <h1 class="font-display text-3xl font-bold" style="letter-spacing:-0.05em">Panel administratora</h1>
+      <p class="mt-2 text-muted">Wpisz kod dostępu ustawiony w zmiennej <code class="rounded bg-white px-1.5 py-0.5 text-sm">ADMIN_PIN</code>.</p>
+      <form method="post" action="/admin/logowanie" class="mt-8 grid gap-4">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <div><label class="label" for="pin">Kod dostępu</label>
+          <div class="relative"><input id="pin" name="pin" type="password" autocomplete="current-password" required autofocus class="input pr-12"><button type="button" data-reveal="#pin" class="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-muted hover:bg-paper" aria-label="Pokaż kod"><%- icon('eye', 'ico-sm') %></button></div></div>
+        <button class="btn btn-primary btn-lg w-full"><%- icon('login', 'ico-sm') %>Wejdź do panelu</button>
+      </form>
+      <p class="mt-6 text-sm text-muted">Sesja administratora wygasa po <%= hours %> godz. lub po kliknięciu „Zamknij panel”.</p>
+    </div>
+  </div>
+</section>

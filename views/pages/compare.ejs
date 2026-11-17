@@ -1,0 +1,43 @@
+<%
+  var rows = [
+    ['Cena', function(l){ return fmt.price(l.price, l.transaction); }],
+    ['Cena za m²', function(l){ return l.pricePerM2 && l.transaction === 'sprzedaz' ? fmt.num(l.pricePerM2) + ' zł' : '–'; }],
+    ['Czynsz', function(l){ return l.rentExtra ? fmt.num(l.rentExtra) + ' zł/mc' : '–'; }],
+    ['Metraż', function(l){ return l.area ? fmt.num(l.area, l.area % 1 ? 1 : 0) + ' m²' : '–'; }],
+    ['Pokoje', function(l){ return l.rooms || '–'; }],
+    ['Łazienki', function(l){ return l.bathrooms || '–'; }],
+    ['Piętro', function(l){ return l.floor !== undefined && l.floor !== null ? fmt.floorLabel(l.floor, l.floorsTotal) : '–'; }],
+    ['Lokalizacja', function(l){ return l.cityName + (l.district ? ', ' + l.district : ''); }],
+    ['Rynek', function(l){ return P.MARKETS[l.market] || '–'; }],
+    ['Rodzaj zabudowy', function(l){ return l.buildingType || '–'; }],
+    ['Stan wykończenia', function(l){ return l.condition || '–'; }],
+    ['Ogrzewanie', function(l){ return l.heating || '–'; }],
+    ['Rok budowy', function(l){ return l.yearBuilt || '–'; }],
+    ['Parking', function(l){ return l.parking || '–'; }],
+    ['Dostępne od', function(l){ return l.availableFrom ? fmt.dateShort(l.availableFrom) : '–'; }],
+    ['Ogłoszeniodawca', function(l){ return l.agency ? l.agency.name : (P.ADVERTISER[l.advertiserType] || 'Osoba prywatna'); }],
+    ['Udogodnienia', function(l){ return (l.features || []).length ? l.features.map(function(k){ return P.FEATURE_LABEL[k]; }).filter(Boolean).join(', ') : '–'; }]
+  ];
+%>
+<section class="wrap py-8">
+  <%- include('../partials/breadcrumbs') %>
+  <h1 class="mt-3 section-title !text-[clamp(30px,4vw,46px)]">Porównanie ogłoszeń</h1>
+  <% if (!items.length) { %>
+  <div class="card mt-8 p-10 text-center"><p class="font-display text-xl font-bold">Brak ogłoszeń do porównania</p><p class="mt-2 text-muted">Kliknij „Porównaj” przy ogłoszeniach (maksymalnie 4), a potem wróć tutaj.</p><a href="/sprzedaz/mieszkania" class="btn btn-primary mt-5">Przeglądaj ogłoszenia</a></div>
+  <% } else { %>
+  <div class="card mt-8 overflow-x-auto">
+    <table class="w-full min-w-[640px] border-collapse text-sm">
+      <thead><tr><th class="w-44 border-b border-line p-4"></th>
+        <% items.forEach(function(l){ %><th class="border-b border-line p-4 text-left align-top font-normal">
+          <a href="<%= l.url %>" class="scene block aspect-[4/3] overflow-hidden rounded-[14px]"><% if (l.images && l.images[0]) { %><img src="<%= l.images[0].url %>" alt=""><% } else { %><%- art.sceneFor(l) %><% } %></a>
+          <a href="<%= l.url %>" class="mt-3 block font-bold leading-snug hover:text-orange-600"><%= l.title %></a>
+          <a href="#" data-compare-remove="<%= l.num %>" class="mt-1 inline-block text-xs text-muted underline">Usuń z porównania</a>
+        </th><% }) %>
+      </tr></thead>
+      <tbody>
+        <% rows.forEach(function(r){ %><tr><th class="border-b border-line bg-paper/60 p-3 text-left font-semibold text-muted"><%= r[0] %></th><% items.forEach(function(l){ %><td class="border-b border-line p-3 align-top num"><%= r[1](l) %></td><% }) %></tr><% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% } %>
+</section>

@@ -1,0 +1,46 @@
+<% var p = a.plan || {}; %>
+<a href="/admin/biura" class="text-sm font-semibold text-muted hover:text-navy-900">← Biura</a>
+<h1 class="mt-2 font-display text-3xl font-extrabold"><%= isNew ? 'Nowe biuro' : a.name %></h1>
+<form method="post" action="<%= isNew ? '/admin/biura/nowe' : '/admin/biura/' + a._id %>" class="mt-6 grid gap-6 xl:grid-cols-2">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <% if (a.partnerRequest) { %><input type="hidden" name="partnerRequest" value="<%= a.partnerRequest %>"><% } %>
+  <section class="card card-pad grid content-start gap-4">
+    <h2 class="font-display text-lg font-bold">Dane biura</h2>
+    <div><label class="label" for="ag-name">Nazwa</label><input id="ag-name" name="name" required class="input" value="<%= a.name || '' %>"></div>
+    <div><label class="label" for="ag-slug">Adres strony (/biuro/…)</label><input id="ag-slug" name="slug" class="input" value="<%= a.slug || '' %>" placeholder="generowany z nazwy"></div>
+    <div><label class="label" for="ag-city">Miasto</label><select id="ag-city" name="city" class="select"><option value="">–</option><% LOC.CITIES.slice().sort(function(x,y){ return x.name.localeCompare(y.name, 'pl'); }).forEach(function(c){ %><option value="<%= c.slug %>" <%= a.city === c.slug ? 'selected' : '' %>><%= c.name %></option><% }) %></select></div>
+    <div class="grid gap-4 sm:grid-cols-2"><div><label class="label" for="ag-email">E-mail</label><input id="ag-email" name="email" class="input" value="<%= a.email || '' %>"></div><div><label class="label" for="ag-phone">Telefon</label><input id="ag-phone" name="phone" class="input" value="<%= a.phone || '' %>"></div></div>
+    <div><label class="label" for="ag-nip">NIP</label><input id="ag-nip" name="nip" class="input" value="<%= a.nip || '' %>"></div>
+    <div><label class="label" for="ag-owner">E-mail właściciela konta biura</label><input id="ag-owner" name="ownerEmail" type="email" class="input" value="<%= ownerEmail %>"><p class="hint">Jeśli konto nie istnieje, zostanie utworzone – właściciel ustawi hasło przez „Nie pamiętasz hasła?” lub zaloguje się Google.</p></div>
+    <% if (!isNew) { %>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div><label class="label" for="ag-status">Status</label><select id="ag-status" name="status" class="select"><option value="active" <%= a.status === 'active' ? 'selected' : '' %>>Aktywne</option><option value="suspended" <%= a.status === 'suspended' ? 'selected' : '' %>>Zawieszone</option></select></div>
+      <label class="flex items-center gap-2 self-end text-sm"><input type="checkbox" name="verified" class="check" <%= a.verified ? 'checked' : '' %>>Zweryfikowane</label>
+    </div>
+    <p class="text-sm text-muted">Zespół: <% (a.members || []).forEach(function(m){ %><span class="badge tone-muted mr-1"><%= m.user ? m.user.email : '?' %> (<%= m.role %>)</span><% }) %></p>
+    <% } %>
+  </section>
+  <section class="card card-pad grid content-start gap-4">
+    <h2 class="font-display text-lg font-bold">Plan współpracy (indywidualny)</h2>
+    <div><label class="label" for="pl-name">Nazwa planu</label><input id="pl-name" name="planName" class="input" value="<%= p.name || 'Partner' %>"></div>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div><label class="label" for="pl-max">Limit ogłoszeń</label><input id="pl-max" name="maxListings" type="number" min="0" class="input" value="<%= p.maxListings %>"></div>
+      <div><label class="label" for="pl-ag">Limit kont</label><input id="pl-ag" name="maxAgents" type="number" min="1" class="input" value="<%= p.maxAgents %>"></div>
+      <div><label class="label" for="pl-ft">Sloty wyróżnień</label><input id="pl-ft" name="featuredSlots" type="number" min="0" class="input" value="<%= p.featuredSlots %>"></div>
+      <div><label class="label" for="pl-bp">Podbicia / miesiąc</label><input id="pl-bp" name="bumpsPerMonth" type="number" min="0" class="input" value="<%= p.bumpsPerMonth %>"></div>
+    </div>
+    <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="microsite" class="check" <%= p.microsite ? 'checked' : '' %>>Strona biura w serwisie</label>
+    <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="xmlImport" class="check" <%= p.xmlImport ? 'checked' : '' %>>Import XML</label>
+    <div><label class="label" for="pl-valid">Ważny do</label><input id="pl-valid" name="validUntil" type="date" class="input" value="<%= fmt.inputDate(p.validUntil) %>"></div>
+    <div><label class="label" for="pl-notes">Notatka (widoczna dla biura)</label><textarea id="pl-notes" name="planNotes" class="textarea !min-h-[80px]"><%= p.notes || '' %></textarea></div>
+    <button class="btn btn-primary"><%= isNew ? 'Utwórz biuro' : 'Zapisz' %></button>
+  </section>
+</form>
+<% if (!isNew) { %>
+<form method="post" action="/admin/biura/<%= a._id %>" class="card card-pad mt-6 grid gap-3 border-red-200">
+  <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="action" value="delete">
+  <h2 class="font-display text-lg font-bold text-red-700">Usuń biuro</h2>
+  <p class="text-sm text-muted">Oferty zostaną zarchiwizowane, członkowie zespołu stracą dostęp do panelu. Wpisz adres biura (<b><%= a.slug %></b>), aby potwierdzić.</p>
+  <div class="flex gap-2"><input name="confirm" class="input max-w-xs" autocomplete="off" aria-label="Potwierdzenie"><button class="btn btn-danger">Usuń</button></div>
+</form>
+<% } %>

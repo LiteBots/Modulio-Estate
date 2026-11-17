@@ -1,0 +1,13 @@
+<% var sad = typeof stickyAd !== 'undefined' ? stickyAd : null; %>
+<% if (sad) { %>
+<div class="fixed inset-x-0 bottom-0 z-[60] border-t border-line bg-white/95 p-2 shadow-lift backdrop-blur sm:hidden" style="padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px))" data-sticky-ad>
+  <div class="relative">
+    <button type="button" class="absolute -top-4 right-1 z-10 grid h-7 w-7 place-items-center rounded-full border border-line bg-white text-muted shadow-soft" data-dismiss="[data-sticky-ad]" aria-label="Zamknij reklamę"><%- icon('x', 'ico-sm') %></button>
+    <% if (sad.imageMobile || sad.image) { %>
+    <a href="/r/<%= sad._id %>" rel="sponsored noopener" target="_blank" class="block overflow-hidden rounded-[12px]"><img src="<%= sad.imageMobile || sad.image %>" alt="<%= sad.headline || sad.name %>" class="h-[64px] w-full object-cover"></a>
+    <% } else { %>
+    <%- include('ad-slot', { ad: sad, placement: 'mobile_sticky', shape: 'inline' }) %>
+    <% } %>
+  </div>
+</div>
+<% } %>
