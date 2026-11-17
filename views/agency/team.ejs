@@ -1,0 +1,49 @@
+<% var a = agency; %>
+<div class="flex flex-wrap items-end justify-between gap-4">
+  <div><h1 class="font-display text-3xl font-extrabold">Zespół</h1><p class="mt-1 text-muted num">Konta: <%= a.members.length %> + zaproszenia <%= a.invites.length %> / limit <%= a.plan.maxAgents %></p></div>
+</div>
+<% if (inviteLink) { %><div class="alert alert-info mt-5"><%- icon('link', 'ico mt-px') %><span>Link zaproszenia (jeśli e-mail nie dotrze): <span class="select-all font-semibold break-all"><%= inviteLink %></span></span></div><% } %>
+<div class="mt-6 grid gap-6 xl:grid-cols-[1fr_360px]">
+  <div class="grid content-start gap-3">
+    <% a.members.forEach(function(m){ if (!m.user) return; var u = m.user; %>
+    <form method="post" action="/biuro-panel/zespol/<%= u._id %>" class="card p-4">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <div class="flex flex-wrap items-center gap-4">
+        <% if (u.avatar) { %><img src="<%= u.avatar %>" alt="" class="h-12 w-12 rounded-full object-cover" referrerpolicy="no-referrer"><% } else { %><span class="grid h-12 w-12 place-items-center rounded-full bg-teal-500 font-bold text-white"><%= (u.name || u.email).slice(0,2).toUpperCase() %></span><% } %>
+        <div class="min-w-0 flex-1"><p class="font-semibold"><%= u.name || u.email %></p><p class="text-sm text-muted"><%= u.email %></p></div>
+        <span class="badge <%= m.role === 'owner' ? 'tone-orange' : m.role === 'manager' ? 'tone-teal' : 'tone-info' %>"><%= m.role === 'owner' ? 'Właściciel' : m.role === 'manager' ? 'Manager' : 'Agent' %></span>
+      </div>
+      <% if (isManager) { %>
+      <details class="mt-3"><summary class="cursor-pointer text-sm font-bold text-ink underline decoration-orange-500 decoration-2 underline-offset-4">Edytuj profil na stronie biura</summary>
+        <div class="mt-3 grid gap-3 sm:grid-cols-2">
+          <div><label class="label">Stanowisko</label><input name="title" class="input" value="<%= m.title || '' %>" placeholder="Agent nieruchomości"></div>
+          <div><label class="label">Telefon</label><input name="phone" class="input" value="<%= m.phone || '' %>"></div>
+          <div class="sm:col-span-2"><label class="label">Krótki opis</label><textarea name="bio" class="textarea !min-h-[80px]"><%= m.bio || '' %></textarea></div>
+          <% if (agencyRole === 'owner' && m.role !== 'owner') { %><div><label class="label">Rola</label><select name="role" class="select"><option value="agent" <%= m.role === 'agent' ? 'selected' : '' %>>Agent</option><option value="manager" <%= m.role === 'manager' ? 'selected' : '' %>>Manager</option></select></div><% } %>
+          <label class="flex items-center gap-2 self-end text-sm"><input type="checkbox" name="showOnSite" class="check" <%= m.showOnSite ? 'checked' : '' %>>Pokaż na stronie biura</label>
+        </div>
+        <div class="mt-3 flex gap-2"><button class="btn btn-primary btn-sm">Zapisz</button><% if (m.role !== 'owner') { %><button name="action" value="remove" class="btn btn-ghost btn-sm text-red-600" data-confirm="Usunąć tę osobę z zespołu? Jej oferty zostaną przypisane do Ciebie.">Usuń z zespołu</button><% } %></div>
+      </details>
+      <% } %>
+    </form>
+    <% }) %>
+    <% a.invites.forEach(function(inv){ %>
+    <form method="post" action="/biuro-panel/zespol/<%= inv._id %>" class="card flex flex-wrap items-center gap-4 border-dashed p-4">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <span class="grid h-12 w-12 place-items-center rounded-full bg-paper text-muted"><%- icon('mail', 'ico') %></span>
+      <div class="min-w-0 flex-1"><p class="font-semibold"><%= inv.email %></p><p class="text-sm text-muted">Zaproszenie wysłane <%= fmt.dateShort(inv.createdAt) %> · <%= inv.role === 'manager' ? 'manager' : 'agent' %></p></div>
+      <% if (isManager) { %><button name="action" value="cancel-invite" class="btn btn-ghost btn-sm">Anuluj</button><% } %>
+    </form>
+    <% }) %>
+  </div>
+  <% if (isManager) { %>
+  <form method="post" action="/biuro-panel/zespol/zapros" class="card card-pad grid content-start gap-4">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <h2 class="font-display text-lg font-bold">Zaproś do zespołu</h2>
+    <div><label class="label" for="inv-email">E-mail</label><input id="inv-email" name="email" type="email" required class="input"></div>
+    <div><label class="label" for="inv-role">Rola</label><select id="inv-role" name="role" class="select"><option value="agent">Agent – swoje oferty i leady</option><% if (agencyRole === 'owner') { %><option value="manager">Manager – całe biuro</option><% } %></select></div>
+    <button class="btn btn-accent"><%- icon('send', 'ico-sm') %>Wyślij zaproszenie</button>
+    <p class="text-xs text-muted">Osoba zaproszona zaloguje się lub założy konto na podany adres i automatycznie dołączy do biura.</p>
+  </form>
+  <% } %>
+</div>

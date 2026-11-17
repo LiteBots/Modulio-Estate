@@ -1,0 +1,22 @@
+<div class="flex flex-wrap items-end justify-between gap-4">
+  <h1 class="font-display text-3xl font-extrabold">Statystyki</h1>
+  <div class="flex rounded-full bg-white p-1 ring-1 ring-line"><% [7,30,90].forEach(function(d){ %><a href="/biuro-panel/statystyki?dni=<%= d %>" class="rounded-full px-4 py-1.5 text-sm font-semibold <%= days === d ? 'bg-navy-800 text-white' : 'text-muted' %>"><%= d %> dni</a><% }) %></div>
+</div>
+<div class="mt-6 grid grid-cols-3 gap-3">
+  <div class="kpi"><p class="text-sm text-muted">Wyświetlenia</p><p class="kpi-value"><%= fmt.num(totals.views) %></p></div>
+  <div class="kpi"><p class="text-sm text-muted">Telefony</p><p class="kpi-value"><%= fmt.num(totals.phone) %></p></div>
+  <div class="kpi"><p class="text-sm text-muted">Zapytania</p><p class="kpi-value"><%= fmt.num(totals.inquiries) %></p></div>
+</div>
+<div class="card card-pad mt-6 min-w-0"><div class="overflow-x-auto"><div class="min-w-[560px]"><%- chart %></div></div></div>
+<div class="mt-6 grid gap-6 xl:grid-cols-[1fr_320px]">
+  <div class="card overflow-hidden"><div class="table-wrap"><table class="table num">
+    <thead><tr><th>Oferta</th><th class="!text-right">Wyśw.</th><th class="!text-right">Tel.</th><th class="!text-right">Zap.</th><th class="!text-right">Ulub.</th><th class="!text-right">Konwersja</th></tr></thead>
+    <tbody><% listings.forEach(function(l){ var conv = l.views ? ((l.phoneReveals + l.inquiriesCount) / l.views * 100) : 0; %>
+      <tr><td class="max-w-[320px]"><a href="<%= l.url %>" target="_blank" class="block truncate font-semibold hover:text-orange-600"><%= l.title %></a><span class="text-xs text-muted"><%= l.cityName %> · <%= l.agent ? l.agent.name : '' %></span></td><td class="text-right"><%= fmt.num(l.views) %></td><td class="text-right"><%= l.phoneReveals %></td><td class="text-right"><%= l.inquiriesCount %></td><td class="text-right"><%= l.favoritesCount %></td><td class="text-right font-semibold <%= conv >= 3 ? 'text-teal-600' : '' %>"><%= conv.toFixed(1).replace('.', ',') %>%</td></tr>
+    <% }) %><% if (!listings.length) { %><tr><td colspan="6" class="py-8 text-center text-muted">Brak danych.</td></tr><% } %></tbody>
+  </table></div></div>
+  <div class="grid content-start gap-6">
+    <div class="card card-pad"><h2 class="font-display text-lg font-bold">Miasta</h2><ul class="mt-3 grid gap-2 text-sm"><% Object.keys(byCity).sort(function(x,y){ return byCity[y].views - byCity[x].views; }).forEach(function(c){ %><li class="flex justify-between"><span><%= c %> <span class="text-muted">(<%= byCity[c].n %>)</span></span><b class="num"><%= fmt.num(byCity[c].views) %></b></li><% }) %></ul></div>
+    <div class="card card-pad"><h2 class="font-display text-lg font-bold">Źródła zapytań</h2><ul class="mt-3 grid gap-2 text-sm"><% leadSources.forEach(function(s){ %><li class="flex justify-between"><span><%= s._id %></span><b class="num"><%= s.n %></b></li><% }) %><% if (!leadSources.length) { %><li class="text-muted">Brak zapytań.</li><% } %></ul></div>
+  </div>
+</div>

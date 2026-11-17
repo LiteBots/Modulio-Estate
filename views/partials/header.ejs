@@ -1,0 +1,53 @@
+<a href="#tresc" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-navy-800 focus:px-4 focus:py-2 focus:text-white">Przejdź do treści</a>
+<div class="sticky z-50 pt-3" style="top: calc(env(safe-area-inset-top, 0px) - 0px)">
+  <header class="header-float" id="site-header">
+    <%- include('logo') %>
+    <nav class="ml-auto hidden items-center gap-1 lg:flex" aria-label="Główna nawigacja">
+      <a href="/sprzedaz/mieszkania" class="nav-link <%= isActive('/sprzedaz') ? 'is-on' : '' %>">Kupno</a>
+      <a href="/wynajem/mieszkania" class="nav-link <%= isActive('/wynajem') ? 'is-on' : '' %>">Wynajem</a>
+      <a href="/sprzedaz/mieszkania?rynek=pierwotny" class="nav-link">Nowe mieszkania</a>
+      <a href="/miasta" class="nav-link <%= isActive('/miasta') || isActive('/miasto') ? 'is-on' : '' %>">Miasta</a>
+      <a href="/biura" class="nav-link <%= isActive('/biura') || isActive('/biuro') ? 'is-on' : '' %>">Biura</a>
+      <a href="/raport-cen" class="nav-link <%= isActive('/raport-cen') ? 'is-on' : '' %>">Ceny</a>
+    </nav>
+    <div class="ml-auto flex items-center gap-1.5 lg:ml-4">
+      <a href="/panel/obserwowane" class="btn-icon relative" aria-label="Obserwowane">
+        <%- icon('heart', 'ico') %>
+        <span data-fav-count class="absolute right-1 top-1 grid h-4 min-w-[16px] place-items-center rounded-full bg-orange-500 px-1 text-[10px] font-bold text-ink num" <%= user && user.favorites.length ? '' : 'hidden' %>><%= user ? user.favorites.length : 0 %></span>
+      </a>
+      <% if (user) { %>
+      <details class="relative" data-dropdown>
+        <summary class="btn btn-white btn-sm cursor-pointer list-none border border-line [&::-webkit-details-marker]:hidden"><%- icon('user', 'ico-sm') %><span class="hidden sm:inline">Moje konto</span></summary>
+        <div class="absolute right-0 mt-2 w-60 rounded-[18px] border border-line bg-white p-2 shadow-lift">
+          <p class="truncate px-3.5 pb-2 pt-1 text-xs text-muted"><%= user.email %></p>
+          <a href="/panel/ogloszenia" class="side-link">Moje ogłoszenia</a>
+          <a href="/panel/obserwowane" class="side-link">Obserwowane</a>
+          <a href="/panel/wiadomosci" class="side-link">Wiadomości</a>
+          <a href="/panel/ustawienia" class="side-link">Ustawienia konta</a>
+          <% if (user.agency) { %><a href="/biuro-panel" class="side-link border-t border-line">Panel biura</a><% } %>
+          <% if (user.role === 'admin') { %><a href="/admin" class="side-link">Administracja</a><% } %>
+          <form method="post" action="/wyloguj" class="mt-1 border-t border-line pt-1"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="side-link w-full">Wyloguj</button></form>
+        </div>
+      </details>
+      <% } else { %>
+      <a href="/logowanie" class="btn btn-white btn-sm hidden border border-line sm:inline-flex"><%- icon('user', 'ico-sm') %>Zaloguj się</a>
+      <% } %>
+      <a href="<%= user && user.agency ? '/biuro-panel/ogloszenia/nowe' : '/panel/ogloszenia/nowe' %>" class="btn btn-primary btn-sm hidden sm:inline-flex"><%- icon('plus', 'ico-sm') %>Dodaj ogłoszenie</a>
+      <button type="button" class="btn-icon lg:hidden" data-toggle="#mobileMenu" aria-label="Menu" aria-expanded="false"><%- icon('menu', 'ico') %></button>
+    </div>
+  </header>
+  <div id="mobileMenu" class="mx-auto mt-2 rounded-[20px] border border-line bg-white p-3 shadow-lift lg:hidden" style="width: min(1320px, calc(100% - 24px))" hidden>
+    <nav class="grid gap-1">
+      <a href="/sprzedaz/mieszkania" class="side-link">Kupno</a>
+      <a href="/wynajem/mieszkania" class="side-link">Wynajem</a>
+      <a href="/sprzedaz/mieszkania?rynek=pierwotny" class="side-link">Nowe mieszkania</a>
+      <a href="/miasta" class="side-link">Miasta</a>
+      <a href="/biura" class="side-link">Biura nieruchomości</a>
+      <a href="/raport-cen" class="side-link">Ceny mieszkań</a>
+      <div class="mt-2 grid grid-cols-2 gap-2 border-t border-line pt-3">
+        <% if (!user) { %><a href="/logowanie" class="btn btn-outline btn-sm">Zaloguj się</a><% } else { %><a href="/panel" class="btn btn-outline btn-sm">Moje konto</a><% } %>
+        <a href="/panel/ogloszenia/nowe" class="btn btn-primary btn-sm">Dodaj ogłoszenie</a>
+      </div>
+    </nav>
+  </div>
+</div>

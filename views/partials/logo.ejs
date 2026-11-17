@@ -1,0 +1,5 @@
+<% var dark = typeof dark !== 'undefined' && dark; %>
+<a href="/" class="flex shrink-0 items-center gap-2.5" aria-label="NieruchomosciPomorza.pl – strona główna">
+  <span class="<%= dark ? 'grid h-11 w-11 place-items-center rounded-[12px] bg-white' : '' %>"><img src="/img/logo-mark.svg" alt="" width="40" height="40" class="<%= dark ? 'h-8 w-8' : 'h-10 w-10' %>"></span>
+  <span class="font-display text-[17px] leading-[0.95] tracking-[-0.02em]"><span class="block font-extrabold <%= dark ? 'text-white' : 'text-navy-800' %>">nieruchomości</span><span class="block font-normal text-orange-500">pomorza</span></span>
+</a>

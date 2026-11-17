@@ -1,0 +1,7 @@
+<% var bp = typeof path !== 'undefined' ? path : ''; var on = function(t){ return t ? 'text-navy-800' : 'text-muted'; }; %>
+<nav class="fixed inset-x-0 bottom-0 z-[55] grid grid-cols-4 border-t border-line bg-white/95 backdrop-blur sm:hidden" style="padding-bottom: env(safe-area-inset-bottom, 0px)" aria-label="Nawigacja na telefonie">
+  <a href="/" class="flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold <%= on(bp === '/') %>"><%- icon('search', 'ico ' + (bp === '/' ? 'text-teal-500' : '')) %>Szukaj</a>
+  <a href="/sprzedaz/nieruchomosci?widok=mapa" class="flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold <%= on(/widok=mapa/.test(bp)) %>"><%- icon('map', 'ico') %>Mapa</a>
+  <a href="/panel/obserwowane" class="flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold <%= on(bp.indexOf('/panel/obserwowane') === 0) %>"><%- icon('heart', 'ico') %>Obserwowane</a>
+  <a href="<%= user ? '/panel' : '/logowanie' %>" class="flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold <%= on(bp === '/panel' || bp === '/logowanie') %>"><%- icon('user', 'ico') %><%= user ? 'Konto' : 'Zaloguj' %></a>
+</nav>

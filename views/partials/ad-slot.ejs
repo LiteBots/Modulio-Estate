@@ -1,0 +1,26 @@
+<% var shape = typeof shape !== 'undefined' ? shape : 'banner'; %>
+<% if (ad) { %>
+<% if (shape === 'inline') { %>
+<a href="/r/<%= ad._id %>" rel="sponsored noopener" target="_blank" class="group flex items-center gap-3 rounded-[16px] border border-line bg-white p-3 transition hover:border-orange-300" data-ad="<%= placement %>">
+  <% if (ad.image) { %><img src="<%= ad.image %>" alt="" loading="lazy" class="h-12 w-16 shrink-0 rounded-[10px] object-cover"><% } else { %><span class="grid h-11 w-11 shrink-0 place-items-center rounded-[12px] bg-orange-100 text-orange-600"><%- icon('banknote', 'ico-sm') %></span><% } %>
+  <span class="min-w-0 flex-1"><span class="block text-[10px] font-bold uppercase tracking-wider text-muted">Reklama<%= ad.advertiser ? ' · ' + ad.advertiser : '' %></span><span class="block truncate font-semibold"><%= ad.headline || ad.name %></span><% if (ad.text) { %><span class="block truncate text-sm text-muted"><%= ad.text %></span><% } %></span>
+  <% if (ad.cta) { %><span class="btn btn-accent btn-sm shrink-0"><%= ad.cta %></span><% } %>
+</a>
+<% } else { %>
+<a href="/r/<%= ad._id %>" rel="sponsored noopener" target="_blank" class="group relative block overflow-hidden rounded-xl border border-line bg-white <%= shape === 'tile' ? 'h-full min-h-[300px]' : '' %>" data-ad="<%= placement %>">
+  <span class="absolute right-2 top-2 z-10 rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted">Reklama</span>
+  <% if (ad.image) { %>
+  <picture>
+    <% if (ad.imageMobile) { %><source media="(max-width: 640px)" srcset="<%= ad.imageMobile %>"><% } %>
+    <img src="<%= ad.image %>" alt="<%= ad.headline || ad.name %>" loading="lazy" class="h-full w-full object-cover">
+  </picture>
+  <% } else { %>
+  <div class="flex h-full flex-col justify-center gap-1.5 bg-navy-800 p-6 text-white <%= shape === 'tile' ? '' : 'sm:flex-row sm:items-center sm:justify-between' %>">
+    <div><p class="font-display text-xl font-bold"><%= ad.headline || ad.name %></p>
+    <% if (ad.text) { %><p class="text-white/80"><%= ad.text %></p><% } %></div>
+    <% if (ad.cta) { %><span class="btn btn-accent btn-sm mt-2 w-fit shrink-0"><%= ad.cta %></span><% } %>
+  </div>
+  <% } %>
+</a>
+<% } %>
+<% } %>
