@@ -1,9 +1,0 @@
-<aside id="dashSide" class="fixed inset-y-0 left-0 z-40 hidden w-72 overflow-y-auto border-r border-line bg-white px-4 pb-8 pt-20 lg:sticky lg:top-16 lg:block lg:h-[calc(100vh-4rem)] lg:pt-6" style="padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px))">
-  <%- typeof sideHead !== 'undefined' ? sideHead : '' %>
-  <% var exactHit = items.some(function(i){ return i.href === path; }); %>
-  <nav class="grid gap-1">
-    <% items.forEach(function(it){ if (it.sep) { %><p class="mb-1 mt-5 px-3.5 text-[11px] font-bold uppercase tracking-widest text-muted"><%= it.sep %></p><% } else { var on = path === it.href || (!it.exact && !exactHit && path.indexOf(it.href + '/') === 0); %>
-    <a href="<%= it.href %>" class="side-link <%= on ? 'is-on' : '' %>"><%- icon(it.icon, 'ico') %><span class="flex-1"><%= it.label %></span><% if (it.badge) { %><span class="grid h-5 min-w-[20px] place-items-center rounded-full bg-orange-500 px-1.5 text-[11px] font-bold text-white num"><%= it.badge %></span><% } %><% if (it.lock) { %><%- icon('lock', 'ico-sm opacity-50') %><% } %></a>
-    <% } }) %>
-  </nav>
-</aside>
